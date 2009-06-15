@@ -1,0 +1,308 @@
+<?php
+// $Id: xmlsitemap.install,v 1.1.2.65 2009/05/25 18:32:57 kiam Exp $
+
+/**
+ * @file
+ * Installation file for XML sitemap.
+ */
+
+/*****************************************************************************
+ * Drupal hooks.
+ ****************************************************************************/
+
+/**
+ * Implementation of hook_requirements().
+ */
+function xmlsitemap_requirements($phase) {
+  $requirements = array();
+  return $requirements;
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function xmlsitemap_schema() {
+  $schema['xmlsitemap_additional'] = array(
+    'description' => 'The list of additional links added to the sitemap.',
+    'fields' => array(
+      'mid' => array(
+        'description' => 'The primary key.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'pdata' => array(
+        'description' => 'The relative path of the link.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating whether or not this link is enabled.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'previously_changed' => array(
+        'description' => 'The Unix timestamp of the previous change.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp of the last change.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'priority' => array(
+        'description' => 'The priority of the node in the sitemap.',
+        'type' => 'float',
+        'not null' => TRUE,
+        'default' => 0.5,
+      ),
+    ),
+    'indexes' => array(
+      'link_status' => array('status'),
+      'link_changed' => array('changed'),
+      'link_priority' => array('priority'),
+    ),
+    'unique keys' => array(
+      'link_pdata' => array('pdata'),
+    ),
+    'primary key' => array('mid'),
+  );
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function xmlsitemap_install() {
+  drupal_install_schema('xmlsitemap');
+  variable_set('xmlsitemap_chunk_size', 1000);
+  db_query("UPDATE {system} SET weight = 5 WHERE name = 'xmlsitemap'");
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6000() {
+  $ret = array();
+  if ($GLOBALS['db_type'] == 'pgsql') {
+    $result = @update_sql("DROP AGGREGATE first(anyelement)");
+    if ($result['success']) {
+      $ret[] = $result;
+    }
+    $result = @update_sql('DROP FUNCTION IF EXISTS first(anyelement, anyelement);');
+    if ($result['success']) {
+      $ret[] = $result;
+    }
+  }
+  if (db_table_exists('xmlsitemap_additional')) {
+    db_drop_table($ret, 'xmlsitemap_additional');
+  }
+  if (db_table_exists('xmlsitemap')) {
+    db_drop_table($ret, 'xmlsitemap');
+  }
+  foreach(xmlsitemap_schema() as $table => $definition) {
+    db_create_table($ret, $table, $definition);
+  }
+  $modules = array(
+    'xmlsitemap_file',
+    'xmlsitemap_helper',
+    'xmlsitemap_menu',
+    'xmlsitemap_term',
+  );
+  module_disable($modules);
+  $ret[] = update_sql("DELETE FROM {system} WHERE name IN ('xmlsitemap_file', 'xmlsitemap_helper', 'xmlsitemap_menu', 'xmlsitemap_term') AND type = 'module'");
+  if (db_table_exists('xmlsitemap_file')) {
+    db_drop_table($ret, 'xmlsitemap_file');
+  }
+  $ret[] = update_sql("DELETE FROM {menu_links} WHERE menu_name = 'menu-xmlsitemap'");
+  $ret[] = update_sql("DELETE FROM {menu_custom} WHERE menu_name = 'menu-xmlsitemap'");
+  $ret[] = update_sql("DELETE FROM {variable} WHERE name LIKE 'xmlsitemap\_menu\_%'");
+  if (!variable_get('menu_rebuild_needed', FALSE)) {
+    variable_set('menu_rebuild_needed', TRUE);
+    $ret[] = array(
+      'success' => TRUE,
+      'query' => 'UPDATE MENU CALLBACKS',
+    );
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6118() {
+  variable_set('xmlsitemap_cron_submit_frequency', variable_get('xmlsitemap_cron_submit', FALSE) ? 1 : -1);
+  $ret[] = array(
+    'success' => TRUE,
+    'query' => 'UPDATE MODULE SETTINGS'
+  );
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6126() {
+  $ret[] = update_sql("DELETE FROM {xmlsitemap}");
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6133() {
+  $ret[] = update_sql("UPDATE {system} SET weight = 5 WHERE name = 'xmlsitemap'");
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6136() {
+  xmlsitemap_flag_sitemap(TRUE);
+  $ret[] = array(
+    'success' => TRUE,
+    'query' => 'UPDATE SITEMAP',
+  );
+  $ret[] = update_sql("DELETE FROM {variable} WHERE name = 'xmlsitemap_update_sitemap_request'");
+  variable_set('xmlsitemap_chunk_size', 1000);
+  $ret[] = array(
+    'success' => TRUE,
+    'query' => 'UPDATE XMLSITEMAP_CHUNK_SIZE'
+  );
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6138() {
+  $ret = array();
+  $result = array();
+  @db_drop_index($result, 'xmlsitemap', 'link_type');
+  if ($result[0]['success']) {
+    $ret[] = $result[0];
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6139() {
+  $ret[] = update_sql("DELETE FROM {system} WHERE name IN ('xmlsitemap_file', 'xmlsitemap_helper') AND type = 'module'");
+  if (db_table_exists('xmlsitemap_file')) {
+    db_drop_table($ret, 'xmlsitemap_file');
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6140() {
+  $ret = array();
+  if (module_exists('xmlsitemap_term')) {
+    module_disable(array('xmlsitemap_term'));
+    drupal_set_message(t('XML sitemap term has been deprecated in favor of XML sitemap taxonomy; enable it in the <a href="@modules">modules page.', array('@modules' => url('admin/build/modules'))));
+    $ret[] = array(
+      'success' => TRUE,
+      'query' => 'DISABLE XMLSITEMAP_TERM',
+    );
+  }
+  if (function_exists('rules_clear_cache')) {
+    rules_clear_cache();
+    $ret[] = array(
+      'success' => TRUE,
+      'query' => 'CLEAR RULES CACHE',
+    );
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6142() {
+  $ret = array();
+  if (!variable_get('menu_rebuild_needed', FALSE)) {
+    variable_set('menu_rebuild_needed', TRUE);
+    $ret[] = array(
+      'success' => TRUE,
+      'query' => 'UPDATE MENU CALLBACKS',
+    );
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6143() {
+  cache_clear_all();
+  $ret[] = array(
+    'success' => TRUE,
+    'query' => 'UPDATE DRUPAL CACHE',
+  );
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6145() {
+  if (module_exists('xmlsitemap_menu')) {
+    module_disable(array('xmlsitemap_menu'));
+    drupal_set_message(t('XML sitemap menu has been deprecated, and it is not anymore included in <em>XML sitemap</em>. It seems you have not correctly copied the new files, or you have two different sets of files in two different directories. Verify that you correctly copied the new files, before to proceed.'), 'error');
+    $ret[] = array(
+      'success' => TRUE,
+      'query' => 'DISABLE XMLSITEMAP_MENU',
+    );
+  }
+  $ret[] = update_sql("DELETE FROM {system} WHERE name = 'xmlsitemap_menu' AND type = 'module'");
+  $ret[] = update_sql("DELETE FROM {menu_links} WHERE menu_name = 'menu-xmlsitemap'");
+  $ret[] = update_sql("DELETE FROM {menu_custom} WHERE menu_name = 'menu-xmlsitemap'");
+  $ret[] = update_sql("DELETE FROM {variable} WHERE name LIKE 'xmlsitemap\_menu\_%'");
+  module_rebuild_cache();
+  $ret[] = array(
+    'success' => TRUE,
+    'query' => 'UPDATE MODULES LIST',
+  );
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6147() {
+  return xmlsitemap_update_6000();
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6148() {
+  $ret = array();
+  if (variable_get('xmlsitemap_cron_limit', -1) == -1) {
+    variable_set('xmlsitemap_cron_limit', 200);
+    $ret[] = array(
+      'success' => TRUE,
+      'query' => 'UPDATE MODULE SETTINGS',
+    );
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function xmlsitemap_uninstall() {
+  drupal_uninstall_schema('xmlsitemap');
+  db_query("DELETE FROM {variable} WHERE name LIKE 'xmlsitemap\_%'");
+}

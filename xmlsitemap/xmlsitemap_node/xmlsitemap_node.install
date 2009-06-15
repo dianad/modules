@@ -1,0 +1,153 @@
+<?php
+// $Id: xmlsitemap_node.install,v 1.9.2.62 2009/05/26 01:27:03 kiam Exp $
+
+/**
+ * @file
+ * Installation file for XML sitemap node.
+ */
+
+/*****************************************************************************
+ * Drupal hooks.
+ ****************************************************************************/
+
+/**
+ * Implementation of hook_enable().
+ */
+function xmlsitemap_node_enable() {
+  xmlsitemap_flag_sitemap(TRUE);
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function xmlsitemap_node_disable() {
+  xmlsitemap_flag_sitemap(TRUE);
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function xmlsitemap_node_schema() {
+  $schema['xmlsitemap_node'] = array(
+    'description' => 'The list of the nodes added to the sitemap.',
+    'fields' => array(
+      'mid' => array(
+        'description' => 'The primary key.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'pdata' => array(
+        'description' => 'The node ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'sdata' => array(
+        'description' => 'The revision ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'language' => array(
+        'description' => 'The language associated with the node.',
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating whether or not this node is enabled.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'previously_changed' => array(
+        'description' => 'The Unix timestamp of the previous change.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp of the last change.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'priority' => array(
+        'description' => 'The priority of the node in the sitemap.',
+        'type' => 'float',
+        'not null' => TRUE,
+        'default' => 0.5,
+      ),
+      'priority_override' => array(
+        'description' => 'The value that overrides the normal priority.',
+        'type' => 'float',
+        'not null' => TRUE,
+        'default' => -2.0,
+      ),
+    ),
+    'indexes' => array(
+      'link_language' => array('language'),
+      'link_status' => array('status'),
+      'link_changed' => array('changed'),
+      'link_priority' => array('priority'),
+    ),
+    'unique keys' => array(
+      'link_pdata' => array('pdata'),
+    ),
+    'primary key' => array('mid'),
+  );
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function xmlsitemap_node_install() {
+  drupal_install_schema('xmlsitemap_node');
+  db_query("UPDATE {system} SET weight = 5 WHERE name = 'xmlsitemap_node'");
+}
+
+/**
+ * Implementation of hook_update_N().
+ *
+ */
+function xmlsitemap_node_update_6000() {
+  $ret = array();
+  if (db_table_exists('xmlsitemap_node')) {
+    db_drop_table($ret, 'xmlsitemap_node');
+  }
+  foreach(xmlsitemap_node_schema() as $table => $definition) {
+    db_create_table($ret, $table, $definition);
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ *
+ */
+function xmlsitemap_node_update_6106() {
+  $ret[] = update_sql("UPDATE {system} SET weight = 5 WHERE name = 'xmlsitemap_node'");
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ *
+ */
+function xmlsitemap_node_update_6121() {
+  return xmlsitemap_node_update_6000();
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function xmlsitemap_node_uninstall() {
+  drupal_uninstall_schema('xmlsitemap_node');
+  db_query("DELETE FROM {variable} WHERE name LIKE 'xmlsitemap\_node\_%'");
+}

@@ -1,0 +1,162 @@
+# $Id: xmlsitemap_node.pot,v 1.1.2.3 2009/04/25 23:01:01 kiam Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  xmlsitemap_node.rules.inc,v 1.1.2.4 2009/04/25 22:21:10 kiam
+#  xmlsitemap_node.module,v 1.19.2.92 2009/04/24 18:26:06 kiam
+#  xmlsitemap_node.info,v 1.2.2.3 2009/04/24 18:33:52 kiam
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2009-04-26 00:54+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: xmlsitemap_node.rules.inc:24
+msgid "Remove the content from the site map"
+msgstr ""
+
+#: xmlsitemap_node.rules.inc:26;33;40
+msgid "Content"
+msgstr ""
+
+#: xmlsitemap_node.rules.inc:31
+msgid "Set the site map content priority to the content type value"
+msgstr ""
+
+#: xmlsitemap_node.rules.inc:38
+msgid "Set the site map content priority"
+msgstr ""
+
+#: xmlsitemap_node.rules.inc:41 xmlsitemap_node.module:78
+msgid "Priority"
+msgstr ""
+
+#: xmlsitemap_node.module:68;95;118
+msgid "XML site map"
+msgstr ""
+
+#: xmlsitemap_node.module:79
+msgid "The default priority is %priority."
+msgstr ""
+
+#: xmlsitemap_node.module:102
+msgid "Priority adjustment"
+msgstr ""
+
+#: xmlsitemap_node.module:103
+msgid "This number will be added to the priority of this content type."
+msgstr ""
+
+#: xmlsitemap_node.module:124;268
+msgid "User posts threshold"
+msgstr ""
+
+#: xmlsitemap_node.module:125;269
+msgid "The number of posts a user must author before his posts are added to the site map."
+msgstr ""
+
+#: xmlsitemap_node.module:125
+msgid "This is the default value used for the users for which the post threshold has not been set."
+msgstr ""
+
+#: xmlsitemap_node.module:128;272
+msgid "1"
+msgstr ""
+
+#: xmlsitemap_node.module:129;273
+msgid "5"
+msgstr ""
+
+#: xmlsitemap_node.module:130;274
+msgid "10"
+msgstr ""
+
+#: xmlsitemap_node.module:131;275
+msgid "20"
+msgstr ""
+
+#: xmlsitemap_node.module:132;276
+msgid "50"
+msgstr ""
+
+#: xmlsitemap_node.module:133;277
+msgid "100"
+msgstr ""
+
+#: xmlsitemap_node.module:134;278
+msgid "200"
+msgstr ""
+
+#: xmlsitemap_node.module:135;279
+msgid "500"
+msgstr ""
+
+#: xmlsitemap_node.module:136;280
+msgid "Never add the posts"
+msgstr ""
+
+#: xmlsitemap_node.module:151
+msgid "Promotion adjustment"
+msgstr ""
+
+#: xmlsitemap_node.module:152
+msgid "This number will be added to the priority of each post that is promoted to the front page. This setting doesn't apply for the nodes for which the priority is overriden."
+msgstr ""
+
+#: xmlsitemap_node.module:158
+msgid "Comment ratio weight - nodes"
+msgstr ""
+
+#: xmlsitemap_node.module:159
+msgid "This number will be added to the priority of the post with the highest number of comments; for the other posts, the number is calculated proportionally to the number of comments. This doesn't apply if the maximum number of comments is one, nor for the nodes for which the priority is overriden."
+msgstr ""
+
+#: xmlsitemap_node.module:171
+msgid "Add the selected posts to the XML site map"
+msgstr ""
+
+#: xmlsitemap_node.module:176
+msgid "Change the XML site map priority of the selected posts to default"
+msgstr ""
+
+#: xmlsitemap_node.module:181
+msgid "Remove the selected posts from the XML site map"
+msgstr ""
+
+#: xmlsitemap_node.module:304 xmlsitemap_node.info:0
+msgid "XML Sitemap: Node"
+msgstr ""
+
+#: xmlsitemap_node.module:305
+msgid "<em>XML Sitemap: Node</em> adds nodes (content) to the site map. The default priority of a node is determined by a combination of its <a href=\"@content\">content type</a> priority, whether it appears on the front page of your site, and the number of comments it has received. You can override the default priority for individual nodes when you add or edit a node."
+msgstr ""
+
+#: xmlsitemap_node.module:439
+msgid "Processing"
+msgstr ""
+
+#: xmlsitemap_node.module:441
+msgid "The update has encountered an error."
+msgstr ""
+
+#: xmlsitemap_node.module:0
+msgid "xmlsitemap_node"
+msgstr ""
+
+#: xmlsitemap_node.info:0
+msgid "Adds nodes to the site map."
+msgstr ""
+
+#: xmlsitemap_node.info:0
+msgid "XML Sitemap"
+msgstr ""
+

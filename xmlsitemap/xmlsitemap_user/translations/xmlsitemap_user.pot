@@ -1,0 +1,102 @@
+# $Id: xmlsitemap_user.pot,v 1.1.2.3 2009/04/25 23:01:01 kiam Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  xmlsitemap_user.module,v 1.12.2.68 2009/04/24 18:25:58 kiam
+#  xmlsitemap_user.info,v 1.2.2.3 2009/04/24 18:33:48 kiam
+#  xmlsitemap_user.install,v 1.6.2.50 2009/04/24 18:25:57 kiam
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2009-04-26 00:57+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: xmlsitemap_user.module:25;56
+msgid "XML site map"
+msgstr ""
+
+#: xmlsitemap_user.module:32
+msgid "Default user priority"
+msgstr ""
+
+#: xmlsitemap_user.module:33
+msgid "The default priority for users who have only the authenticated user role."
+msgstr ""
+
+#: xmlsitemap_user.module:62
+msgid "Default priority"
+msgstr ""
+
+#: xmlsitemap_user.module:63
+msgid "The priority of all a user's roles will be added together to set the user's default priority. If all role priorities are left at default, the user's default priority will be %priority."
+msgstr ""
+
+#: xmlsitemap_user.module:78
+msgid "Comment ratio weight - users"
+msgstr ""
+
+#: xmlsitemap_user.module:79
+msgid "This number will be added to the priority of the user who authored the highest number of comments; for the other users, the number is calculated proportionally to the number of authored comments. This doesn't apply if the maximum number of comments is one, nor for the users for which the priority is overriden."
+msgstr ""
+
+#: xmlsitemap_user.module:119
+msgid "User priority"
+msgstr ""
+
+#: xmlsitemap_user.module:120
+msgid "The default priority is %priority."
+msgstr ""
+
+#: xmlsitemap_user.module:170
+msgid "Add the selected users to the XML site map"
+msgstr ""
+
+#: xmlsitemap_user.module:175
+msgid "Change the XML site map priority of the selected users to default"
+msgstr ""
+
+#: xmlsitemap_user.module:180
+msgid "Remove the selected users from the XML site map"
+msgstr ""
+
+#: xmlsitemap_user.module:192 xmlsitemap_user.info:0
+msgid "XML Sitemap: User"
+msgstr ""
+
+#: xmlsitemap_user.module:193
+msgid "The module adds user profiles to the site map. The <em>anonymous user</em> role must have permission to access user profiles on the <a href=\"@access\">access control page</a>. You can change the default user priority on the <a href=\"@user_settings\">user settings</a> page. The <a href=\"@user\">user role priority</a> will override the default user priority. You can override both the default priority and the role priority when you add or edit a user."
+msgstr ""
+
+#: xmlsitemap_user.module:281
+msgid "Processing"
+msgstr ""
+
+#: xmlsitemap_user.module:283
+msgid "The update has encountered an error."
+msgstr ""
+
+#: xmlsitemap_user.module:0
+msgid "xmlsitemap_user"
+msgstr ""
+
+#: xmlsitemap_user.install:82;265;273;293
+msgid "The priority assigned to the role."
+msgstr ""
+
+#: xmlsitemap_user.info:0
+msgid "Adds user profiles to the site map."
+msgstr ""
+
+#: xmlsitemap_user.info:0
+msgid "XML Sitemap"
+msgstr ""
+

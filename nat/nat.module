@@ -1,0 +1,738 @@
+<?php
+// $Id: nat.module,v 1.34.2.11 2009/02/17 06:39:38 karthik Exp $
+
+/**
+ * @file
+ * NAT - node auto term - is a helper module that automatically creates a
+ * term using the same title as a node.
+ *
+ * @author Karthik Kumar / Zen [ http://drupal.org/user/21209 ].
+ * @internal There are a number of cases to be considered (dev notes):
+ *  o Term adds/updates/deletes: i.e. should this be a 2-way module?
+ *  o Vocabulary deletes.
+ *  o Dissociation of node type and vocabulary in nat_config - how should this
+ *    be handled?
+ *  o Filter handling for body/description fields.
+ *  o Duplicate handling?
+ *
+ * Features to be added:
+ *  o Node deletes: Optionally delete child nodes associated via NAT.
+ *  o Maintain hierarchy on unassociated vocabularies (on a best effort basis?)
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+function nat_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#nat':
+      return t('NAT - node auto term - is a helper module that automatically creates a term using the same title as a node.');
+  }
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function nat_menu() {
+  $items = array();
+
+  $items['admin/settings/nat'] = array(
+    'title' => 'NAT',
+    'description' => 'Establish node - node relationships via the taxonomy module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nat_settings_form'),
+    'access arguments' => array('administer NAT configuration')
+  );
+  $items['admin/settings/nat/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nat_settings_form'),
+    'access arguments' => array('administer NAT configuration'),
+    'type' => MENU_DEFAULT_LOCAL_TASK
+  );
+  $items['admin/settings/nat/sync'] = array(
+    'title' => 'Sync',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nat_sync_form'),
+    'access arguments' => array('administer NAT configuration'),
+    'type' => MENU_LOCAL_TASK
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function nat_perm() {
+  return array('administer NAT configuration');
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function nat_nodeapi(&$node, $op, $teaser, $page) {
+  $nat_config = _nat_variable_get();
+  if (!isset($nat_config['types'][$node->type]) || empty($nat_config['types'][$node->type])) {
+    return;
+  }
+
+  switch ($op) {
+    case 'load':
+      $node->nat = nat_get_terms($node->nid);
+      break;
+    case 'insert':
+      // Copying over the node body is optional.
+      $body = isset($nat_config['body'][$node->type]) ? $node->body : '';
+
+      // Add term(s).
+      $terms = _nat_add_terms($nat_config['types'][$node->type], $node->title, $body, $node->taxonomy, $node->nat['related'], $node->nat['synonyms']);
+
+      // Save node-term association in the NAT table.
+      _nat_save_association($node->nid, $terms);
+      break;
+    case 'update':
+      // Ensure that this is a node form submission and not a direct node_save
+      // operation. Ref: http://drupal.org/node/197532 and
+      // http://drupal.org/node/188377 .
+      if (isset($node->form_id)) {
+        // Copying over the node body is optional.
+        $body = isset($nat_config['body'][$node->type]) ? $node->body : '';
+        // Update term(s).
+        $terms = nat_get_terms($node->nid);
+        _nat_update_terms($terms, $node->title, $body, $node->taxonomy, $node->nat['related'], $node->nat['synonyms']);
+      }
+      break;
+    case 'delete':
+      // Deleting the associated term when a node is deleted is optional.
+      if (isset($nat_config['delete'][$node->type])) {
+        _nat_delete_terms($node->nid);
+      }
+      // Delete node-term association from the NAT table.
+      _nat_delete_association($node->nid);
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function nat_form_alter(&$form, &$form_state, $form_id) {
+  if ($form['#id'] == 'node-form') {
+    $config = _nat_variable_get();
+
+    foreach ($config['types'] as $type => $associations) {
+      if (count($associations) && $form_id == $type .'_node_form' && isset($config['related'][$type])) {
+        $form['nat'] = array(
+          '#type' => 'fieldset',
+          '#title' => t('Term information'),
+          '#tree' => TRUE,
+          '#weight' => -2,
+          '#collapsible' => TRUE,
+          '#collapsed' => FALSE
+        );
+
+        // Related terms.
+        if (isset($form['#node']->nat)) {
+          foreach ($form['#node']->nat as $term) {
+            $terms[$term->vid] = $term->tid;
+          }
+        }
+        foreach ($associations as $vocabulary_id) {
+          $vocabulary = taxonomy_vocabulary_load($vocabulary_id);
+          if ($vocabulary->relations) {
+            $form['nat']['related'][$vocabulary_id] = _taxonomy_term_select(t('Related !terms', array('!terms' => $vocabulary->name)), 'relations', array_keys(taxonomy_get_related($terms[$vocabulary_id])), $vocabulary_id, NULL, 1, '<'. t('none') .'>', array($term->tid));
+          }
+        }
+
+        // Synonyms.
+        $form['nat']['synonyms'] = array(
+          '#type' => 'textarea',
+          '#title' => t('Synonyms'),
+          '#default_value' => implode("\n", taxonomy_get_synonyms($term->tid)),
+          '#description' => t('Synonyms of this term; one synonym per line.')
+        );
+        // This can only match once, so we just break the foreach.
+        break;
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_link_alter().
+ */
+function nat_link_alter(&$links, $node) {
+  $nat_config = _nat_variable_get();
+
+  if (isset($nat_config['node_links'][$node->type])) {
+    foreach ($links as $module => $link) {
+      // $link['title'] will be empty during node previews at which point
+      // taxonomy links do not work.
+      if (strpos($module, 'taxonomy_term') !== FALSE && $link['title']) {
+        $tids = array(str_replace('taxonomy/term/', '', $link['href']));
+        $nids = array_keys(nat_get_nids($tids, FALSE));
+        if (!empty($nids)) {
+          // Link back to the NAT node and not the taxonomy term page.
+          $links[$module]['href'] = "node/$nids[0]";
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_views_api().
+ *
+ * This one is used as the base to reduce errors when updating.
+ */
+function nat_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'nat') .'/includes'
+  );
+}
+
+/**
+ * Menu callback: NAT module settings form.
+ */
+function nat_settings_form() {
+  $types = node_get_types();
+  $vocabularies = _nat_get_vocabularies();
+
+  if (empty($vocabularies)) {
+    drupal_set_message(t('The NAT module requires at least one vocabulary to be defined.'), 'error');
+    drupal_goto('admin/content/taxonomy');
+  }
+
+  $nat_config = _nat_variable_get();
+
+  foreach ($types as $type => $type_object) {
+    $collapsed = (!isset($nat_config['types'][$type])) || (empty($nat_config['types'][$type]));
+    $form['nat_'. $type] = array(
+      '#type' => 'fieldset',
+      '#title' => check_plain($type_object->name),
+      '#collapsible' => TRUE,
+      '#collapsed' => $collapsed
+    );
+    $form['nat_'. $type][$type] = array(
+      '#type' => 'select',
+      '#title' => t('Vocabularies'),
+      '#options' => $vocabularies,
+      '#default_value' => isset($nat_config['types'][$type]) ? $nat_config['types'][$type] : array(),
+      '#multiple' => TRUE,
+      '#description' => t('Creating a node of type %type will automatically create a term in any selected vocabularies.', array('%type' => $type)),
+      '#parents' => array('types', $type)
+    );
+    $form['nat_'. $type]['body_'. $type] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Associate node body with term description.'),
+      '#default_value' => isset($nat_config['body'][$type]) ? $nat_config['body'][$type] : 0,
+      '#parents' => array('body', $type)
+    );
+    $form['nat_'. $type]['delete_'. $type] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Delete associated term if a node is deleted.'),
+      '#default_value' => isset($nat_config['delete'][$type]) ? $nat_config['delete'][$type] : 0,
+      '#parents' => array('delete', $type)
+    );
+    $form['nat_'. $type]['related_'. $type] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Allow users to define synonyms and related terms when they create and edit nodes.'),
+      '#default_value' => isset($nat_config['related'][$type]) ? $nat_config['related'][$type] : 0,
+      '#parents' => array('related', $type)
+    );
+    $form['nat_'. $type]['node_links_'. $type] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Make NAT terms in %type node views point to the associated node rather than the taxonomy page.', array('%type' => $type)),
+      '#default_value' => isset($nat_config['node_links'][$type]) ? $nat_config['node_links'][$type] : 0,
+      '#parents' => array('node_links', $type)
+    );
+  }
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
+
+  return $form;
+}
+
+/**
+ * Process NAT settings form submissions.
+ */
+function nat_settings_form_submit($form, &$form_state) {
+  $form_values = $form_state['values'];
+
+  unset($form_values['form_id'], $form_values['form_build_id'], $form_values['submit'], $form_values['op'], $form_values['form_token']);
+
+  $form_values['body'] = array_filter($form_values['body']);
+  $form_values['delete'] = array_filter($form_values['delete']);
+  $form_values['node_links'] = array_filter($form_values['node_links']);
+  $form_values['related'] = array_filter($form_values['related']);
+
+  variable_set('nat_config', $form_values);
+
+  drupal_set_message(t('Configuration settings saved.'));
+}
+
+/**
+ * Sync the NAT table with the node table for associated vocabularies.
+ */
+function nat_sync_form() {
+  $vocabularies = _nat_get_vocabularies();
+
+  if (empty($vocabularies)) {
+    drupal_set_message(t('The NAT module requires at least one vocabulary to be defined.'), 'error');
+    drupal_goto('admin/content/taxonomy');
+  }
+
+  $nat_config = _nat_variable_get();
+  $options = array();
+  foreach ($nat_config['types'] as $type => $associations) {
+    if (!empty($associations)) {
+      foreach ($associations as $vid) {
+        $options[$type .'|'. $vid] = t('@type &lsaquo;-&rsaquo; !vocabulary', array('@type' => $type, '!vocabulary' => $vocabularies[$vid]));
+      }
+    }
+  }
+  if (empty($options)) {
+    drupal_set_message(t('There are no vocabularies available to sync.'));
+    drupal_goto('admin/settings/nat');
+  }
+
+  $form['sync'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Sync associations'),
+    '#description' => t('The Sync operation will create NAT associations (and terms) for nodes (marked for NAT association) not present in the NAT table.'),
+    '#collapsible' => TRUE
+  );
+  $form['sync']['vocabularies'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Select the vocabularies to sync with associated node tables'),
+    '#description' => t('Any nodes not already NAT associated with the selected vocabularies will be associated.'),
+    '#required' => TRUE,
+    '#options' => $options
+  );
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Sync tables'));
+
+  return $form;
+}
+
+/**
+ * Process NAT sync form submissions.
+ */
+function nat_sync_form_submit($form, &$form_state) {
+  _nat_sync_associations(array_filter($form_state['values']['vocabularies']));
+}
+
+/**
+ * Gets terms associated with a node.
+ *
+ * @param $nid
+ *   The nid of the node whose NAT terms are to be retrieved.
+ * @return $return
+ *   An associative array of NAT-associated term objects.
+ */
+function nat_get_terms($nid) {
+  static $term_cache = NULL;
+
+  if (isset($term_cache[$nid])) {
+    return $term_cache[$nid];
+  }
+
+  $return = array();
+
+  $result = db_query("SELECT td.* FROM {nat} n INNER JOIN {term_data} td USING (tid) WHERE n.nid = %d", $nid);
+  while ($term = db_fetch_object($result)) {
+    $return[$term->tid] = $term;
+  }
+
+  // Cache result.
+  $term_cache[$nid] = $return;
+
+  return $return;
+}
+
+/**
+ * Retrieve the NAT terms associated with a node restricted by vocabulary.
+ *
+ * @param $nid
+ *   The node ID of the node whose NAT-terms are to be retrieved.
+ * @param $vocabularies
+ *   An array of vocabulary IDs used to optionally retrict the retrieved terms
+ * to a defined set of vocabularies.
+ */
+function nat_get_terms_by_vocabulary($nid, $vocabularies = array()) {
+  $terms = nat_get_terms($nid);
+  if (!empty($vocabularies)) {
+    foreach ($terms as $tid => $term) {
+      if (!in_array($term->vid, $vocabularies)) {
+        unset($terms[$tid]);
+      }
+    }
+  }
+
+  return $terms;
+}
+
+/**
+ * Retrieve the first / single NAT term associated with a node optionally
+ * restricted by vocabulary.
+ *
+ * @param $nid
+ *   The node ID of the node whose NAT-term is to be retrieved.
+ * @param $vocabularies
+ *   An optional array of vocabulary IDs used to optionally retrict the
+ * retrieved term to a defined set of vocabularies.
+ */
+function nat_get_term($nid, $vocabularies = array()) {
+  $terms = empty($vocabularies) ? nat_get_terms($nid) : nat_get_terms_by_vocabulary($nid, $vocabularies);
+
+  return array_shift($terms);
+}
+
+/**
+ * Retrieve all all the children of a node via its NAT association.
+ * Note: taxonomy_select_nodes is a rather resource hungry function.
+ *
+ * @param $nid
+ *   The node ID of the node whose child nodes are to be retrieved.
+ * @param $types
+ *   Unknown.
+ * @param $vocabularies
+ *   Retrict children to nodes categorised using provided vocabularies.
+ * @return
+ *   The resource identifier returned by taxonomy_select_nodes.
+ */
+function nat_get_children($nid, $types = array(), $vocabularies = array()) {
+  $terms = nat_get_terms_by_vocabulary($nid, $vocabularies);
+  $tids = array_keys($terms);
+
+  return taxonomy_select_nodes($tids);
+}
+
+/**
+ * Gets node IDs/nodes associated with a term.
+ *
+ * @param $tids
+ *   An array of term IDs whose associated nodes are to be retrived.
+ * @param $get_nodes
+ *   A boolean indicating if node_load operations are to be performed on the
+ * associated nodes.
+ * @return $return
+ *   An associative array of (nid => node) or (nid => title) depending on the
+ * value of $get_nodes.
+ */
+function nat_get_nids($tids, $get_nodes = FALSE) {
+  static $nid_cache = NULL;
+  static $node_cache = NULL;
+
+  $return = array();
+
+  // Keep processing to a minimum for empty tid arrays.
+  if (!empty($tids)) {
+    // Sort tid array to ensure that the cache_string never suffers from order
+    // issues.
+    sort($tids);
+    $cache_string = implode('+', $tids);
+    if ($get_nodes) {
+      if (isset($node_cache[$cache_string])) {
+        return $node_cache[$cache_string];
+      }
+      elseif (isset($nid_cache[$cache_string])) {
+        // If the nid cache stores the same string, node_load() each nid and
+        // return them.
+        $return = array();
+        foreach (array_keys($nid_cache[$cache_string]) as $nid) {
+          $return[$nid] = node_load($nid);
+        }
+        $node_cache[$cache_string] = $return;
+
+        return $return;
+      }
+    }
+    else {
+      if (isset($nid_cache[$cache_string])) {
+        return $nid_cache[$cache_string];
+      }
+      elseif (isset($node_cache[$cache_string])) {
+        // If the node cache stores the same string, retrieve only the nids and
+        // return them.
+        foreach ($node_cache[$cache_string] as $nid => $node) {
+          $return[$nid] = $node->name;
+        }
+        // Cache extracted results.
+        $nid_cache[$cache_string] = $return;
+
+        return $return;
+      }
+    }
+
+    // Results have not been cached.
+    $tids = implode(', ', $tids);
+    $result = db_query("SELECT n.nid, t.name FROM {nat} n INNER JOIN {term_data} t USING (tid) WHERE n.tid IN (". db_placeholders($tids) .")", $tids);
+    while ($node = db_fetch_object($result)) {
+      if ($get_nodes) {
+        $return[$node->nid] = node_load($node->nid);
+      }
+      else {
+        $return[$node->nid] = $node->name;
+      }
+    }
+
+    if ($get_nodes) {
+      $node_cache[$cache_string] = $return;
+    }
+    else {
+      $nid_cache[$cache_string] = $return;
+    }
+  }
+
+  return $return;
+}
+
+/**
+ * Update the NAT config to include node->vocabulary associations and related
+ * settings. Commonly used in .install files to register associations and save
+ * the admin some work.
+ *
+ * @param $type
+ *   The node type.
+ * @param $vids
+ *   Array of vocabulary IDs that the above node type is to be associated with
+ * via NAT.
+ * @param $delete
+ *   Boolean to indicate if associated term should be deleted when a node is
+ * deleted.
+ * @param $links
+ *   Boolean to indicate if links to NAT terms should point to the associated
+ * nodes instead.
+ * @param $body
+ *   Boolean to indicated if the node body should be in sync with the term
+ * description field.
+ * @param $related
+ *   Boolean to indicate if related terms and synonyms can be set during node
+ * creation.
+ */
+function nat_set_config($type, $vids, $delete = TRUE, $links = TRUE, $body = FALSE, $related = FALSE) {
+  $nat_config = _nat_variable_get();
+  if (!isset($nat_config['types'][$type])) {
+    $nat_config['types'][$type] = array();
+  }
+  foreach ($vids as $vid) {
+    $nat_config['types'][$type][$vid] = $vid;
+  }
+
+  if ($delete) {
+    $nat_config['delete'][$type] = TRUE;
+  }
+  if ($links) {
+    $nat_config['links'][$type] = TRUE;
+  }
+  if ($body) {
+    $nat_config['body'][$type] = TRUE;
+  }
+  if ($related) {
+    $nat_config['related'][$type] = TRUE;
+  }
+
+  variable_set('nat_config', $nat_config);
+}
+
+/**
+ * Retrieve all vocabularies.
+ *
+ * @return $vocabularies
+ *   An associative array of vocabulary IDs to vocabulary names.
+ */
+function _nat_get_vocabularies() {
+  $vocabularies = taxonomy_get_vocabularies();
+  foreach ($vocabularies as $id => $vocabulary) {
+    $vocabularies[$id] = check_plain($vocabulary->name);
+  }
+
+  return $vocabularies;
+}
+
+/**
+ * Add node titles as terms into the taxonomy system.
+ * @todo Ideas are welcome to allow retaining the hierarchy for vocabularies not
+ * present in the node form.
+ *
+ * @param $vids
+ *   An array of vocabulary IDs denoting the vocabularies into which a NAT term
+ * is to be added.
+ * @param $title
+ *   Node title.
+ * @param $body
+ *   Node body.
+ * @param $hierarchy
+ *   The taxonomy array for the node in question. This is used to, if set,
+ * insert the new term as a child term of the selected parent.
+ * @return $tids
+ *   An array of term objects.
+ */
+function _nat_add_terms($vids, $title, $body, $hierarchy = array(), $relations = array(), $synonyms = NULL) {
+  $edit = array(
+    'name' => $title,
+    'description' => $body,
+    'weight' => 0
+  );
+
+  if (!empty($synonyms)) {
+    $edit['synonyms'] = $synonyms;
+  }
+
+  $tids = array();
+
+  foreach ($vids as $vid) {
+    // $edit is passed by reference and 'tid' is set with the tid of the new
+    // term.
+    unset($edit['tid']);
+
+    $edit['vid'] = $vid;
+    // Save hierarchy for vocabularies also present in the node form.
+    if (isset($hierarchy[$vid])) {
+      $edit['parent'] = $hierarchy[$vid];
+    }
+    else {
+      $edit['parent'] = array();
+    }
+
+    if (count($relations)) {
+      $edit['relations'] = $relations[$vid];
+    }
+
+    taxonomy_save_term($edit);
+    $tids[] = $edit;
+  }
+
+  return $tids;
+}
+
+/**
+ * Update saved node-terms.
+ *
+ * @param $terms
+ *   An array of existing NAT-term objects.
+ * @param $title
+ *   Title of the node.
+ * @param $body
+ *   Body of the node.
+ * @param $hierarchy
+ *   The taxonomy array for the node in question. This is used to, if set,
+ * insert the new term as a child term of the selected parent.
+ * @param $relations
+ *   An optional array of related terms.
+ * @param $synonyms
+ *   An optional string of delimited synonyms.
+ */
+function _nat_update_terms($terms, $title, $body, $hierarchy, $relations = array(), $synonyms = NULL) {
+  $edit = array(
+    'name' => $title,
+    'description' => $body
+  );
+
+  $edit['synonyms'] = !empty($synonyms) ? $synonyms : '';
+  foreach ($terms as $term) {
+    $edit['parent'] = isset($hierarchy[$term->vid]) ? $hierarchy[$term->vid] : array();
+    $edit['relations'] = count($relations) ? $relations[$term->vid] : array();
+    $edit['weight'] = $term->weight;
+    $edit['tid'] = $term->tid;
+    $edit['vid'] = $term->vid;
+    taxonomy_save_term($edit);
+  }
+}
+
+/**
+ * Delete associated terms from the taxonomy system.
+ * @todo Options to delete child nodes as well etc.
+ *
+ * @param $nid
+ *   Node ID of the node whose NAT-terms are to be deleted.
+ */
+function _nat_delete_terms($nid) {
+  $terms = nat_get_terms($nid);
+  foreach ($terms as $term) {
+    taxonomy_del_term($term->tid);
+  }
+}
+
+/**
+ * Save node-term associations in the NAT table.
+ *
+ * @param Integer $nid
+ *   Node ID of the node.
+ * @param Array $terms
+ *   NAT-term objects of the above node.
+ */
+function _nat_save_association($nid, $terms) {
+  foreach ($terms as $term) {
+    $term['nid'] = $nid;
+    drupal_write_record('nat', $term);
+  }
+}
+
+/**
+ * Delete node-term associations from the NAT table.
+ *
+ * @param $nid
+ *   Node ID of the node which is to be removed from the NAT table.
+ */
+function _nat_delete_association($nid) {
+  db_query("DELETE FROM {nat} WHERE nid = %d", $nid);
+}
+
+/**
+ * Synchronize NAT node-term relationships. Create associated terms for node
+ * where missing.
+ *
+ * @param $associations
+ *   Associative array denoting the node-vocabulary pair that is to be synced.
+ */
+function _nat_sync_associations($associations) {
+  $nat_config = _nat_variable_get();
+
+  $counter = 0;
+  foreach ($associations as $association) {
+    $association = explode('|', $association);
+    // This query can possibly be improved.
+    $result = db_query("SELECT n.nid, n.type, n.title, nr.body FROM {node} n INNER JOIN {node_revisions} nr USING (vid) LEFT JOIN {nat} n1 ON (n.nid = n1.nid AND n1.vid = %d) LEFT JOIN {nat} n2 ON (n.nid = n2.nid AND n2.nid <> n1.nid) WHERE n.type = '%s' AND n1.nid IS NULL", $association[1], $association[0]);
+    while ($node = db_fetch_array($result)) {
+      // Copying over the node body is optional.
+      $body = isset($nat_config['body'][$node['type']]) ? $node['body'] : '';
+
+      // Add node title as terms.
+      $terms = _nat_add_terms(array($association[1]), $node['title'], $body);
+
+      // Save node-term association in the NAT table.
+      _nat_save_association($node['nid'], $terms);
+
+      $counter++;
+    }
+  }
+  drupal_set_message(t('NAT sync complete: %count nodes synced.', array('%count' => $counter)));
+}
+
+/**
+ * Return a NAT module variable.
+ *
+ * @param $name
+ *   The name of the variable to retrieve.
+ * @return
+ *   The value of the variable requested.
+ */
+function _nat_variable_get($name = NULL) {
+  static $variables = array();
+
+  if (empty($variables)) {
+    $defaults = array(
+      'types' => array(),
+      'body' => array(),
+      'delete' => array(),
+      'related' => array(),
+      'node_links' => array()
+    );
+    $variables = variable_get('nat_config', array());
+    $variables = array_merge($defaults, $variables);
+  }
+
+  return $name ? $variables[$name] : $variables;
+}
