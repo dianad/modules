@@ -1,4 +1,4 @@
-// $Id: thickbox.js,v 1.8.2.14 2009/04/18 21:32:36 frjo Exp $
+// $Id: thickbox.js,v 1.8.2.15 2009/05/15 12:04:09 frjo Exp $
 
 /*
  * Thickbox 3.1 - One Box To Rule Them All.
@@ -355,7 +355,7 @@ function tb_setBrowserExtra() {
   $.browserextra = {
     iphone: /iphone/.test( userAgent ),
     msie6: /msie/.test( userAgent ) && !/opera/.test( userAgent ) && /msie 6\.0/.test( userAgent ) && !/msie 7\.0/.test( userAgent ),
-    macfirefox: /mac/.test( userAgent ) && /firefox/.test( userAgent ),
+    macfirefox: /mac/.test( userAgent ) && /firefox/.test( userAgent )
   };
 }
 
