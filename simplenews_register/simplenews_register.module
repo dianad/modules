@@ -1,5 +1,5 @@
 <?php
-// $Id: simplenews_register.module,v 1.1.2.4.2.6 2009/02/23 19:48:56 moonray Exp $
+// $Id: simplenews_register.module,v 1.1.2.4.2.7 2009/06/22 11:03:05 moonray Exp $
 
 /**
  * @defgroup simplenews_register
@@ -93,8 +93,8 @@ function theme_simplenews_register_admin_settings($form) {
     $row = array();
     $row[] = drupal_render($form['simplenews_register_'. $term->tid .'_newsletter']);
     $row[] = drupal_render($form['simplenews_register_'. $term->tid .'_show']);
-    $row[] = drupal_render($form['simplenews_register_'. $term->tid .'_optout']);
     $row[] = drupal_render($form['simplenews_register_'. $term->tid .'_desc']);
+    $row[] = drupal_render($form['simplenews_register_'. $term->tid .'_optout']);
     $row[] = drupal_render($form['simplenews_register_'. $term->tid .'_confirm']);
     $rows[] = $row;
   }
@@ -173,14 +173,16 @@ function simplenews_register_user($op, &$edit, &$account, $category = NULL) {
       
     case 'insert':
     case 'update':
-      $signing_up = FALSE;
+      $display_message = FALSE;
       foreach (taxonomy_get_tree(_simplenews_get_vid()) as $term) {
-        if (variable_get('simplenews_register_'. $term->tid .'_show', TRUE) && !empty($edit['simplenews-'. $term->tid])) {
-          $signing_up = TRUE;
+        if (!empty($edit['simplenews-'. $term->tid])) {
+          if (variable_get('simplenews_register_'. $term->tid .'_show', TRUE)) {
+            $display_message = TRUE;
+          }
           simplenews_subscribe_user($edit['mail'], $term->tid, variable_get('simplenews_register_'. $term->tid .'_confirm', FALSE));
         }
       }
-      if ($signing_up) {
+      if ($display_message) {
         drupal_set_message(t('Signing up for newsletter(s).'));
       }
       break;

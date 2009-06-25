@@ -3,9 +3,9 @@ name = Mollom
 description = Protects against comment and contact form spam.
 core = 6.x
 
-; Information added by drupal.org packaging script on 2009-06-06
-version = "6.x-1.8"
+; Information added by drupal.org packaging script on 2009-06-23
+version = "6.x-1.9"
 core = "6.x"
 project = "mollom"
-datestamp = "1244310045"
+datestamp = "1245744678"
 
