@@ -1,4 +1,4 @@
-# $Id: xmlsitemap_engines.de.po,v 1.1.2.6 2009/06/22 22:03:07 hass Exp $
+# $Id: xmlsitemap_engines.de.po,v 1.1.2.7 2009/06/27 00:08:11 hass Exp $
 #
 # LANGUAGE translation of Drupal (gsitemap.module)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: German translation of xmlsitemap_engines\n"
 "POT-Creation-Date: 2009-06-22 22:16+0200\n"
-"PO-Revision-Date: 2009-06-23 00:00+0100\n"
+"PO-Revision-Date: 2009-06-27 02:07+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: Alexander Hass\n"
 "MIME-Version: 1.0\n"
@@ -120,7 +120,7 @@ msgstr "Authentifizierungsdatei"
 #: xmlsitemap_engines/xmlsitemap_engines.admin.inc:131
 #, fuzzy
 msgid "Before allowing you to view additional information, Bing will ask you to verify that you control this site by creating a file with a certain name. Enter that name here, and XML sitemap will create a path to that file name. This will only work if you have clean URLs enabled."
-msgstr "Yahoo! wird zu einer Überprüfung des Eigentümers der Website auffordern, bevor der Zugriff auf zusätzliche Informationen gewährt wird, indem eine Datei mit einem bestimmten Namen erzeugt wird. Dazu wird hier der Name eingegeben und das XML-Sitemap-Modul wird den Pfad zu dieser Datei erzeugen. Hierzu müssen „lesbare URLs“ aktiviert sein."
+msgstr "Bing wird zu einer Überprüfung des Eigentümers der Website auffordern, bevor der Zugriff auf zusätzliche Informationen gewährt wird, indem eine Datei mit einem bestimmten Namen erzeugt wird. Dazu wird hier der Name eingegeben und das XML-Sitemap-Modul wird den Pfad zu dieser Datei erzeugen. Hierzu müssen „lesbare URLs“ aktiviert sein."
 
 #: xmlsitemap_engines/xmlsitemap_engines.admin.inc:136
 msgid "Bing authentication tag"

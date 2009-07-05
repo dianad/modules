@@ -1,5 +1,5 @@
 <?php
-// $Id: user_register_notify.admin.inc,v 1.6 2009/01/20 22:22:45 rmiddle Exp $
+// $Id: user_register_notify.admin.inc,v 1.7 2009/04/06 02:13:18 rmiddle Exp $
 
 /**
  * @file
@@ -7,7 +7,7 @@
  */
 
 define('USER_REGISTER_NOTIFY_SUBJECT', t('Account details for !user_name at !site'));
-define('USER_REGISTER_NOTIFY_BODY', t("!user_name (!user_view) has created account.\n\nEdit user: !user_edit\n\nDelete User: !user_delete\n\n!profile"));
+define('USER_REGISTER_NOTIFY_BODY', t("!user_name (!user_view) has !action account.\n\nEdit user: !user_edit\n\nDelete User: !user_delete\n\n!profile"));
 
 /**
  * Module settings page.

@@ -8,9 +8,9 @@ package = Date/Time
 core = 6.x
 
 
-; Information added by drupal.org packaging script on 2009-05-12
-version = "6.x-2.x-dev"
+; Information added by drupal.org packaging script on 2009-03-25
+version = "6.x-2.1"
 core = "6.x"
 project = "calendar"
-datestamp = "1242086608"
+datestamp = "1237996225"
 

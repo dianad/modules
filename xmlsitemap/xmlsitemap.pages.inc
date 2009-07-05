@@ -1,5 +1,5 @@
 <?php
-// $Id: xmlsitemap.pages.inc,v 1.1.4.2 2009/06/22 15:06:07 earnie Exp $
+// $Id: xmlsitemap.pages.inc,v 1.1.4.4 2009/07/02 14:20:24 earnie Exp $
 
 
 /**
@@ -46,10 +46,10 @@ function xmlsitemap_output($chunk = NULL) {
       $chunk_size = XMLSITEMAP_MAX_SITEMAP_LINKS;
     }
     variable_set('xmlsitemap_chunk_size', $chunk_size);
-    watchdog('xmlsitemap', t('Chunk size has been updated to %d.', $chunk_size));
+    watchdog('xmlsitemap', 'Chunk size has been updated to @chunk-size.', array('@chunk-size' => $chunk_size));
   }
   elseif($chunk_count > XMLSITEMAP_MAX_SITEMAP_INDEX_LINKS) {
-    watchdog('xmlsitemap', t('The maximum number of allowed links has been reached.'), WATCHDOG_ERROR);
+    watchdog('xmlsitemap', 'The maximum number of allowed links has been reached.', NULL, WATCHDOG_ERROR);
   }
   if (isset($chunk) && !is_numeric($chunk)) {
     drupal_not_found();
@@ -211,12 +211,15 @@ function _xmlsitemap_create_cache_chunk($fp, $chunk_size, $chunk = 0) {
  * - The stylesheet path or FALSE.
  */
 function _xmlsitemap_xsl() {
-  global $bash_path;
   if (variable_get('xmlsitemap_use_stylesheet', FALSE)) {
-    $path = variable_get('xmlsitemap_cache_directory', file_directory_path() . '/xmlsitemap') . '/gss.xsl';
-    $path = file_exists($path) ? $path : $base_path . drupal_get_path('module', 'xmlsitemap') . '/../gss/gss.xsl';
-    if (file_exists($path)) {
-      return $path;
+    $paths = array(
+      variable_get('xmlsitemap_cache_directory', file_directory_path() . '/xmlsitemap') . '/gss.xsl',
+      drupal_get_path('module', 'xmlsitemap') . '/gss/gss.xsl',
+    );
+    foreach ($paths as $path) {
+      if (file_exists($path)) {
+        return base_path() . $path;
+      }
     }
   }
   return FALSE;
@@ -239,7 +242,7 @@ function _xmlsitemap_create_cache_files() {
   }
   if ($link_count > $chunk_size) {
     if (!$fp = fopen($parent_directory ."/xsm-$id.xml", 'wb')) {
-      watchdog('xmlsitemap', 'Cannot create the cache file (@file).', array('@file' => $parent_directory ."/xsm-$id.xml"), WATCHDOG_ERROR);
+      watchdog('xmlsitemap', 'Could not create the cache file @file.', array('@file' => $parent_directory ."/xsm-$id.xml"), WATCHDOG_ERROR);
       return FALSE;
     }
     fwrite($fp, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
@@ -264,7 +267,7 @@ function _xmlsitemap_create_cache_files() {
     @chmod($parent_directory ."/xsm-$id.xml", 0664);
     for ($chunk = 0; $chunk < $link_count / $chunk_size; ++$chunk) {
       if (!$fp = fopen($parent_directory ."/xsm-$id-$chunk.xml", 'wb')) {
-        watchdog('xmlsitemap', 'Cannot create the cache file (@file).', array('@file' => $parent_directory ."/xsm-$id-$chunk.xml"), WATCHDOG_ERROR);
+        watchdog('xmlsitemap', 'Could not create the cache file @file.', array('@file' => $parent_directory ."/xsm-$id-$chunk.xml"), WATCHDOG_ERROR);
         return FALSE;
       }
       _xmlsitemap_create_cache_chunk($fp, $chunk_size, $chunk);
@@ -275,7 +278,7 @@ function _xmlsitemap_create_cache_files() {
   }
   else {
     if (!$fp = fopen($parent_directory ."/xsm-$id.xml", 'wb')) {
-      watchdog('xmlsitemap', 'Cannot create the cache file (@file).', array('@file' => $parent_directory ."/xsm-$id.xml"), WATCHDOG_ERROR);
+      watchdog('xmlsitemap', 'Could not create the cache file @file.', array('@file' => $parent_directory ."/xsm-$id.xml"), WATCHDOG_ERROR);
       return FALSE;
     }
     _xmlsitemap_create_cache_chunk($fp, $chunk_size);
