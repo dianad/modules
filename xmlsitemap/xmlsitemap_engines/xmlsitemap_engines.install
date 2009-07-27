@@ -1,5 +1,5 @@
 <?php
-// $Id: xmlsitemap_engines.install,v 1.3.2.22 2009/06/16 14:10:43 earnie Exp $
+// $Id: xmlsitemap_engines.install,v 1.3.2.23 2009/07/16 14:34:36 earnie Exp $
 
 
 /**
@@ -16,6 +16,7 @@
  */
 function xmlsitemap_engines_install() {
   db_query("UPDATE {system} SET weight = 15 WHERE name = 'xmlsitemap_engines'");
+  variable_set('xmlsitemap_engines_cron_timestamp_submit', 0);
 }
 
 /**
@@ -78,6 +79,23 @@ function xmlsitemap_engines_update_6107() {
     variable_del('xmlsitemap_engines_live_' . $variable);
   }
   return array();
+}
+
+/**
+ * Set last submitted timestamp variable if non existent.
+ */
+function xmlsitemap_engines_update_6108() {
+  $ret = array();
+  $submitted = variable_get('xmlsitemap_engines_cron_timestamp_submit', FALSE);
+  if (!$submitted) {
+    variable_set('xmlsitemap_engines_cron_timestamp_submit', 0);
+    $t = get_t();
+    $ret[] = array(
+      'success' => TRUE,
+      'query' => $t('Variable "xmlsitemap_engines_cron_timestamp_submit" has been created.'),
+    );
+  }
+  return $ret;
 }
 
 /**

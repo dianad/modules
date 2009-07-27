@@ -1,5 +1,5 @@
 <?php
-// $Id: xmlsitemap_taxonomy.module,v 1.1.2.18 2009/06/16 14:20:17 earnie Exp $
+// $Id: xmlsitemap_taxonomy.module,v 1.1.2.19 2009/07/16 12:56:04 earnie Exp $
 
 /**
  * @file
@@ -147,6 +147,7 @@ function xmlsitemap_taxonomy_taxonomy($op, $type, $array = NULL) {
     switch ($op) {
       case 'delete':
         db_query("DELETE FROM {xmlsitemap_taxonomy} WHERE tid = %d", $array['tid']);
+        db_query("DELETE FROM {xmlsitemap} WHERE type = 'taxonomy' AND id = %d", $array['tid']);
         break;
       case 'insert':
         if (isset($array['tid']) && isset($array['vid'])) {

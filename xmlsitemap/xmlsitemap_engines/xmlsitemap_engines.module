@@ -1,5 +1,5 @@
 <?php
-// $Id: xmlsitemap_engines.module,v 1.5.2.48 2009/06/19 14:35:05 earnie Exp $
+// $Id: xmlsitemap_engines.module,v 1.5.2.50 2009/07/24 17:59:27 earnie Exp $
 
 /**
  * @file
@@ -19,25 +19,19 @@
  * Implementation of hook_cron().
  */
 function xmlsitemap_engines_cron() {
-  if (!variable_get('site_offline', 0) && variable_get('xmlsitemap_engines_cron_submit_frequency', 3600) > 0 && variable_get('xmlsitemap_sitemap_is_changed', FALSE)) {
-    if ((REQUEST_TIME - variable_get('xmlsitemap_engines_cron_timestamp_submit', REQUEST_TIME)) >= variable_get('xmlsitemap_engines_cron_submit_frequency', 3600)) {
-      xmlsitemap_engines_ping_sitemap();
-      variable_set('xmlsitemap_sitemap_is_changed', FALSE);
-      variable_set('xmlsitemap_engines_cron_timestamp_submit', REQUEST_TIME);
-    }
+  if (variable_get('site_offline', 0)) {
+    return;
   }
-}
-
-/**
- * Implementation of hook_init().
- */
-function xmlsitemap_engines_init() {
-  if (!variable_get('site_offline', 0) &&
-    arg(0) != 'batch' &&
-    variable_get('xmlsitemap_engines_submit', FALSE) &&
-    variable_get('xmlsitemap_sitemap_is_changed', FALSE)) {
+  $frequency = variable_get('xmlsitemap_engines_cron_submit_frequency', 3600);
+  $last_ping = variable_get('xmlsitemap_engines_cron_timestamp_submit', 0);
+  $submit_on_change = variable_get('xmlsitemap_engines_submit', FALSE);
+  $content_changed = variable_get('xmlsitemap_sitemap_is_changed', FALSE);
+  $ping_engines = ($submit_on_change && $content_changed) ||
+    ((REQUEST_TIME - $last_ping) >= $frequency);
+  if ($ping_engines) {
     xmlsitemap_engines_ping_sitemap();
     variable_set('xmlsitemap_sitemap_is_changed', FALSE);
+    variable_set('xmlsitemap_engines_cron_timestamp_submit', REQUEST_TIME);
   }
 }
 

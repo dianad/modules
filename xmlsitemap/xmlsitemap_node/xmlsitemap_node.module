@@ -1,5 +1,5 @@
 <?php
-// $Id: xmlsitemap_node.module,v 1.19.2.126 2009/06/12 15:32:26 earnie Exp $
+// $Id: xmlsitemap_node.module,v 1.19.2.128 2009/07/24 18:03:38 earnie Exp $
 
 /**
  * @file
@@ -258,6 +258,7 @@ function xmlsitemap_node_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
       break;
     case 'delete':
       db_query("DELETE FROM {xmlsitemap_node} WHERE nid = %d", $node->nid);
+      db_query("DELETE FROM {xmlsitemap} WHERE type = 'node' AND id = %d", $node->nid);
       if ($node->status) {
         xmlsitemap_flag_sitemap();
       }
@@ -308,13 +309,13 @@ function xmlsitemap_node_xmlsitemap_links() {
     $row->changefreq = max(REQUEST_TIME - $node->changed, empty($node->previously_changed) ? $node->changed - $node->created : $node->changed - $node->previously_changed);
     $priority = xmlsitemap_node_get_priority($node);
     $row->priority = ($priority == -1.0) ? $priority : min(max(round($priority, 1), 0.0), 1.0);
-    $old_row = db_fetch_object(db_query("SELECT lid, type, priority FROM {xmlsitemap} WHERE loc = '%s'", $row->loc));
+    $old_row = db_fetch_object(db_query("SELECT lid, type, language, priority FROM {xmlsitemap} WHERE loc = '%s'", $row->loc));
     $node_access = node_access('view', node_load(array('nid' => $node->nid), NULL, TRUE), $anon_account);
     $row->priority = $node_access ? $row->priority : -1;
     if ($old_row === FALSE) {
       drupal_write_record('xmlsitemap', $row);
     }
-    elseif ($old_row->type == 'node' && $old_row->priority != $row->priority) {
+    elseif ($old_row->type == 'node' && ($old_row->priority != $row->priority || $old_row->language != $row->language)) {
       $row->lid = $old_row->lid;
       drupal_write_record('xmlsitemap', $row, 'lid');
     }

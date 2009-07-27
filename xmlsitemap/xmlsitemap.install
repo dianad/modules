@@ -1,5 +1,5 @@
 <?php
-// $Id: xmlsitemap.install,v 1.5.2.48 2009/07/02 14:20:24 earnie Exp $
+// $Id: xmlsitemap.install,v 1.5.2.50 2009/07/16 13:35:22 earnie Exp $
 
 
 /**
@@ -105,6 +105,7 @@ function xmlsitemap_schema() {
       'link_language' => array('language'),
       'link_changed' => array('changed'),
       'link_priority' => array('priority'),
+      'type_id' => array('type', 'id'),
     ),
     'primary key' => array('lid'),
   );
@@ -551,6 +552,15 @@ function xmlsitemap_update_6150() {
     );
   }
   return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function xmlsitemap_update_6151() {
+  $ret = array();
+  db_add_index($ret, 'xmlsitemap', 'type_id', array('type', 'id'));
+  return $ret;  
 }
 
 /**

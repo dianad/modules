@@ -1,4 +1,4 @@
-# $Id: xmlsitemap_taxonomy.pot,v 1.1.2.5 2009/06/22 21:58:29 hass Exp $
+# $Id: xmlsitemap_taxonomy.pot,v 1.1.2.7 2009/07/02 17:59:41 hass Exp $
 #
 # LANGUAGE translation of Drupal (xmlsitemap_taxonomy)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
@@ -10,7 +10,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-06-22 22:16+0200\n"
+"POT-Creation-Date: 2009-07-02 19:50+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"

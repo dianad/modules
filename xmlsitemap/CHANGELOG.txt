@@ -1,4 +1,15 @@
-$Id: CHANGELOG.txt,v 1.1.4.276 2009/07/02 14:20:24 earnie Exp $
+$Id: CHANGELOG.txt,v 1.1.4.281 2009/07/24 18:16:56 earnie Exp $
+
+XML sitemap 6.x-1, 2009-07-24
+-----------------------------------
+#510076 The sitemap is not being submitted.
+#529850 Node language is not updated.
+#530136 Update INSTALL.txt for the rc2 release.
+
+XML sitemap 6.x-1, 2009-07-16
+-----------------------------------
+#516876 Deleted items not removed from sitemap. 
+#510076 The sitemap is not being submitted.
 
 XML sitemap 6.x-1, 2009-07-01
 -----------------------------------
