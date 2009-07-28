@@ -1,5 +1,5 @@
 <?php
-// $Id: image_attach.module,v 1.44 2008/12/27 06:58:41 drewish Exp $
+// $Id: image_attach.module,v 1.48 2009/06/20 18:28:42 sun Exp $
 
 /**
  * @file image_attach.module
@@ -319,15 +319,13 @@ function image_attach_nodeapi(&$node, $op, $teaser, $page) {
  * Fetch an array of all candidate referenced nodes, for use in presenting the selection form to the user.
  */
 function _image_attach_get_image_nodes() {
-  $result = db_query(db_rewrite_sql("SELECT n.nid, n.title FROM {node} n WHERE n.status=1 AND type='image' ORDER BY n.sticky DESC, n.title ASC"));
-  $result_count = db_result(db_query("SELECT COUNT(*) FROM {node} n WHERE n.status=1 AND type='image'"));
+  $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, n.sticky FROM {node} n WHERE n.status = 1 AND n.type = 'image' ORDER BY n.sticky DESC, n.title ASC"));
   $rows = array(0 => t('None'));
   while ($node = db_fetch_object($result)) {
     $rows[$node->nid] = $node->title;
   }
   return $rows;
 }
-
 
 
 /**
@@ -388,9 +386,10 @@ function theme_image_attach_teaser($node) {
       // If the image is restricted, don't show it as an attachment.
       return NULL;
     }
+    $class = 'image-attach-teaser' . ($image->status ? '' : ' image-unpublished');
     $info = image_get_info(file_create_path($image->images[$img_size]));
 
-    $output = '<div style="width: '. $info['width'] .'px" class="image-attach-teaser">';
+    $output = '<div style="width: ' . $info['width'] . 'px" class="' . $class . '">';
     $output .= l(image_display($image, $img_size), "node/$node->nid", array('html' => TRUE));
     $output .= '</div>'."\n";
 
@@ -412,10 +411,10 @@ function theme_image_attach_body($node) {
       // If the image is restricted, don't show it as an attachment.
       return NULL;
     }
-    $published = $image->status ? '' : ' image-unpublished';
+    $class = 'image-attach-body' . ($image->status ? '' : ' image-unpublished');
     $info = image_get_info(file_create_path($image->images[$img_size]));
 
-    $output = '<div style="width: '. $info['width'] .'px" class="image-attach-body'. $published .'">';
+    $output = '<div style="width: ' . $info['width'] . 'px" class="' . $class . '">';
     $output .= l(image_display($image, $img_size), "node/$node->iid", array('html' => TRUE));
     $output .= '</div>'."\n";
 

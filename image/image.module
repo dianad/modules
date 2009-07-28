@@ -1,5 +1,5 @@
 <?php
-// $Id: image.module,v 1.282 2009/01/13 09:39:09 drewish Exp $
+// $Id: image.module,v 1.305 2009/05/22 19:32:29 sun Exp $
 
 define('IMAGE_ORIGINAL', '_original');
 define('IMAGE_PREVIEW', 'preview');
@@ -10,21 +10,25 @@ define('IMAGE_LINK_SHOWN', 1);
 define('IMAGE_LINK_NEW', 2);
 
 /**
- * Implementation of hook_help
+ * Implementation of hook_help().
  */
 function image_help($path, $arg) {
   switch ($path) {
     case 'admin/help#image':
-      $output = '<p>'. t('The image module is used to create and administer images for your site. Each image is stored as a post, with thumbnails of the original generated automatically. There are two default thumbnail sizes, thumbnail and preview. The thumbnail size is shown as the preview for image posts and when browsing image galleries. The preview is the default size when first displaying an image node.') .'</p>';
-      $output .= '<p>'. t('Image administration allows the image directory and the image sizes to be set.') .'</p>';
-      $output .= '<p>'. t('Image galleries are used to organize and display images in galleries. The list tab allows users to edit existing image gallery names, descriptions, parents and relative position, known as a weight. The add galleries tab allows you to create a new image gallery defining name, description, parent and weight.') .'</p>';
-      $output .= '<p>'. t('You are able to:') .'</p>';
+      $output = '<p>' . t('The Image module is used to create and administer images for your site. Each image is stored as a post, with thumbnails of the original generated automatically. There are two default derivative image sizes, "thumbnail" and "preview". The "thumbnail" size is shown as preview image in posts and when browsing image galleries. The "preview" size is the default size when viewing an image node page.') . '</p>';
+      $output .= '<p>' . t('The settings page for Image module allows the image directory and the image sizes to be configured.') . '</p>';
+      $output .= '<p>' . t('Image module ships with contributed modules. Their settings can be accessed from the image settings page.') . '</p>';
       $output .= '<ul>';
-      $output .= '<li>'. t('View image handling messages in <a href="@admin_settings">administer &gt;&gt; settings</a>.', array('@admin_settings' => url('admin/settings'))) .'</li>';
-      $output .= '<li>'. t('Configure image sizes and file directories at <a href="@admin_settings_image">administer &gt;&gt; settings &gt;&gt; image</a>.', array('@admin_settings_image' => url('admin/settings/image'))) .'</li>';
-      $output .= '<li>'. t('Use the <a href="@external_http_drupal_org_project_img_assist">image assist module</a> to upload and insert images into posts.', array('@external_http_drupal_org_project_img_assist' => 'http://drupal.org/project/img_assist')) .'</li>';
+      $output .= '<li>' . t('Image attach is used to add an existing or new image to a node. The selected image will show up in a predefined spot on the selected node.') . '</li>';
+      $output .= '<li>' . t('Image gallery is used to organize and display images in galleries. The list tab allows users to edit existing image gallery names, descriptions, parents and relative position, known as a weight. The add galleries tab allows you to create a new image gallery defining name, description, parent and weight. If the <a href="@views-url">Views module</a> is installed, then the Image gallery module settings are mostly replaced by settings of the view.', array('@views-url' => 'http://drupal.org/project/views')) . '</li>';
+      $output .= '<li>' . t('Image import is used to import batches of images. The administration page lets you define the folder from which images will be imported.') . '</li>';
+      $output .= '<li>' . t('The separate <a href="@img-assist-url">Image assist module</a> can be installed to upload and insert images into posts.', array('@img-assist-url' => 'http://drupal.org/project/img_assist')) . '</li>';
       $output .= '</ul>';
-      $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@image">Image module</a>.', array('@image' => 'http://www.drupal.org/handbook/modules/image/')) .'</p>';
+      $output .= '<p>' . t('You can:') . '</p>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('Configure image sizes and file directories at <a href="@image-settings-url">Administer &raquo; Site configuration &raquo; Image</a>.', array('@image-settings-url' => url('admin/settings/image'))) . '</li>';
+      $output .= '</ul>';
+      $output .= '<p>' . t('For more information, see the online handbook entry for <a href="@image-url">Image module</a>.', array('@image-url' => 'http://drupal.org/handbook/modules/image')) . '</p>';
       return $output;
   }
 }
@@ -81,20 +85,18 @@ function image_perm() {
 }
 
 /**
- * Implementation of hook_access
+ * Implementation of hook_access().
  */
-function image_access($op, $node) {
-  global $user;
-
-  if ($op == 'create' && user_access('create images')) {
+function image_access($op, $node, $account) {
+  if ($op == 'create' && user_access('create images', $account)) {
     return TRUE;
   }
 
   if ($op == 'update' || $op == 'delete') {
-    if (user_access('edit images')) {
+    if (user_access('edit images', $account)) {
       return TRUE;
     }
-    if (user_access('edit own images') && ($user->uid == $node->uid)) {
+    if (user_access('edit own images', $account) && ($account->uid == $node->uid)) {
       return TRUE;
     }
   }
@@ -136,7 +138,7 @@ function image_menu() {
  * Implements hook_cron. (deletes old temp images)
  */
 function image_cron() {
-  $path = variable_get('image_default_path', 'images') .'/temp';
+  $path = file_directory_path() .'/'. variable_get('image_default_path', 'images') .'/temp';
   $files = file_scan_directory(file_create_path($path), '.*');
   foreach ($files as $file => $info) {
     if (time() - filemtime($file) > 60*60*6) {
@@ -151,7 +153,7 @@ function image_cron() {
 function image_node_operations() {
   $operations = array(
     'rebuild_thumbs' => array(
-      'label' => t('Rebuild image thumbnails'),
+      'label' => t('Rebuild derivative images'),
       'callback' => 'image_operations_rebuild',
     ),
   );
@@ -166,66 +168,6 @@ function image_operations_rebuild($nids) {
         image_update($node);
       }
     }
-  }
-}
-
-/**
- * TODO: document me...
- */
-function image_node_form_submit($form, &$form_state) {
-  // We need to be aware that a user may try to edit multiple image nodes at
-  // once. By using the $nid variable each node's files can be stored separately
-  // in the session.
-  $nid = $form_state['values']['nid'] ? $form_state['values']['nid'] : 'new_node';
-  // When you enter the edit view the first time we need to clear our files in
-  // session for this node. This is so if you upload a file, then decide you
-  // don't want it and reload the form (without posting), the files will be
-  // discarded.
-  if (count($_POST) == 0) {
-    unset($_SESSION['image_new_files'][$nid]);
-  }
-
-  // Validators for file_save_upload().
-  $validators = array(
-    'file_validate_is_image' => array(),
-  );
-
-  if ($file = file_save_upload('image', $validators)) {
-    // Resize the original.
-    $image_info = image_get_info($file->filepath);
-    $aspect_ratio = $image_info['height'] / $image_info['width'];
-    $original_size = image_get_sizes(IMAGE_ORIGINAL, $aspect_ratio);
-    if (!empty($original_size['width']) && !empty($original_size['height'])) {
-      $result = image_scale($file->filepath, $file->filepath, $original_size['width'], $original_size['height']);
-      if ($result) {
-        clearstatcache();
-        $file->filesize = filesize($file->filepath);
-        drupal_set_message(t('The original image was resized to fit within the maximum allowed resolution of %width x %height pixels.', array('%width' => $original_size['width'], '%height' => $original_size['height'])));
-      }
-    }
-
-    // Check the file size limit.
-    if ($file->filesize > variable_get('image_max_upload_size', 800) * 1024) {
-      form_set_error('image', t('The image you uploaded was too big. You are only allowed upload files less than %max_size but your file was %file_size.', array('%max_size' => format_size(variable_get('image_max_upload_size', 800) * 1024), '%file_size' => format_size($file->filesize))));
-      file_delete($file->filepath);
-      return;
-    }
-
-    // We're good to go.
-    $form_state['values']['images'][IMAGE_ORIGINAL] = $file->filepath;
-    $form_state['values']['rebuild_images'] = FALSE;
-    $form_state['values']['new_file'] = TRUE;
-
-    // Call hook to allow other modules to modify the original image.
-    module_invoke_all('image_alter', $form_state['values'], $file->filepath, IMAGE_ORIGINAL);
-    $form_state['values']['images'] = _image_build_derivatives((object) $form_state['values'], TRUE);
-
-    // Store the new file into the session.
-    $_SESSION['image_new_files'][$nid] = $form_state['values']['images'];
-  }
-  // Reload new files uploaded in a previous preview.
-  else if (isset($_SESSION['image_new_files'][$nid])) {
-    $form_state['values']['images'] = $_SESSION['image_new_files'][$nid];
   }
 }
 
@@ -277,14 +219,14 @@ function image_link($type, $node, $main = 0) {
         if (isset($node->images[$key]) && $node->images[$key] != $node->images[$request]) {
           if ($size['link'] == IMAGE_LINK_NEW) {
             $links['image_size_'. $key] = array(
-              'title' => $size['label'],
+              'title' => t($size['label']),
               'href' => "image/view/{$node->nid}/$key",
               'attributes' => array('target' => '_blank'),
             );
           }
           else {
             $links['image_size_'. $key] = array(
-              'title' => $size['label'],
+              'title' => t($size['label']),
               'href' => 'node/'. $node->nid,
               'query' => 'size='. urlencode($key)
             );
@@ -305,29 +247,43 @@ function image_link($type, $node, $main = 0) {
  *
  * Offers 2 blocks: latest image and random image
  */
-function image_block($op = 'list', $delta = 0) {
+function image_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
       $block[0]['info'] = t('Latest image');
       $block[1]['info'] = t('Random image');
-
       return $block;
+
+    case 'configure':
+      $form['number_images'] = array(
+        '#type' => 'select', 
+        '#title' => t('Number of images to display'),
+        '#options' => drupal_map_assoc(range(1, 99)),
+        '#default_value' => variable_get("image_block_{$delta}_number_images", 1),
+      );
+      return $form;
+
     case 'view':
       if (user_access('access content')) {
         switch ($delta) {
           case 0:
-            $images = image_get_latest();
+            $images = image_get_latest(variable_get("image_block_{$delta}_number_images", 1));
             $block['subject'] = t('Latest image');
             $block['content'] = theme('image_block_latest', $images, IMAGE_THUMBNAIL);
             break;
+
           case 1:
-            $images = image_get_random();
+            $images = image_get_random(variable_get("image_block_{$delta}_number_images", 1));
             $block['subject'] = t('Random image');
             $block['content'] = theme('image_block_random', $images, IMAGE_THUMBNAIL);
             break;
         }
       }
       return $block;
+
+    case 'save':
+      variable_set("image_block_{$delta}_number_images", $edit['number_images']);
+      break;
   }
 }
 
@@ -341,14 +297,19 @@ function image_form_add_thumbnail($form, &$form_state) {
 }
 
 /**
- * Implementation of hook_form
+ * Implementation of hook_form().
  */
-function image_form(&$node, &$param) {
+function image_form(&$node, $form_state) {
   _image_check_settings();
+
+  if (!$_POST && !empty($_SESSION['image_upload'])) {
+    unset($_SESSION['image_upload']);
+  }
 
   $type = node_get_types('type', $node);
 
-  $form['#submit'][] = 'image_node_form_submit';
+  $form['#validate'][] = 'image_form_validate';
+  $form['#submit'][] = 'image_form_submit';
 
   $form['title'] = array(
     '#type' => 'textfield',
@@ -367,31 +328,35 @@ function image_form(&$node, &$param) {
     );
   }
 
-  $form['thumbnail'] = array(
-    '#type' => 'item',
-    '#weight' => -10,
-    '#after_build' => array('image_form_add_thumbnail'),
-  );
-
   $form['new_file'] = array(
     '#type' => 'value',
     '#default_value' => isset($node->new_file) ? $node->new_file : FALSE,
   );
-  $form['rebuild_images'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Rebuild derivative images.'),
-    '#default_value' => FALSE,
-    '#description' => t('Check this to rebuild the derivative images for this node.'),
-  );
 
-  $form['#attributes'] = array("enctype" => "multipart/form-data");
+  $form['#attributes'] = array('enctype' => 'multipart/form-data');
+
   $form['image'] = array(
+    '#prefix' => '<div class="image-field-wrapper">',
+    '#suffix' => '</div>',
+  );
+  $form['image']['thumbnail'] = array(
+    '#type' => 'item',
+    '#after_build' => array('image_form_add_thumbnail'),
+  );
+  $form['image']['image'] = array(
     '#type' => 'file',
     '#title' => t('Image'),
     '#size' => 40,
-    '#description' => t('Click "Browse..." to select an image to upload.'),
-    '#weight' => -3,
+    '#description' => t('Select an image to upload.'),
   );
+  $form['image']['rebuild_images'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Rebuild derivative images'),
+    '#default_value' => FALSE,
+    '#description' => t('Check this to rebuild the derivative images for this node.'),
+    '#access' => (!isset($node->nid) ? FALSE : TRUE),
+  );
+
   if ($type->has_body) {
     $form['body_field'] = node_body_field($node, $type->body_label, $type->min_word_count);
   }
@@ -399,20 +364,66 @@ function image_form(&$node, &$param) {
   return $form;
 }
 
-function image_validate($node) {
-  $nid = ($node->nid) ? $node->nid : 'new_node';
-  if (!isset($node->images[IMAGE_ORIGINAL]) && !isset($_SESSION['image_new_files'][$nid])) {
-    form_set_error('image', t('You must upload an image.'));
+function image_form_validate($form, &$form_state) {
+  // Avoid blocking node deletion with missing image.
+  if ($form_state['values']['op'] == t('Delete')) {
+    return;
+  }
+
+  // Validators for file_save_upload().
+  $validators = array(
+    'file_validate_is_image' => array(),
+  );
+
+  // New image uploads need to be saved in images/temp in order to be viewable
+  // during node preview.
+  $temporary_file_path = file_create_path(file_directory_path() . '/' . variable_get('image_default_path', 'images') .'/temp');
+
+  if ($file = file_save_upload('image', $validators, $temporary_file_path)) {
+    // Resize the original.
+    $image_info = image_get_info($file->filepath);
+    $aspect_ratio = $image_info['height'] / $image_info['width'];
+    $original_size = image_get_sizes(IMAGE_ORIGINAL, $aspect_ratio);
+    if (!empty($original_size['width']) && !empty($original_size['height'])) {
+      $result = image_scale($file->filepath, $file->filepath, $original_size['width'], $original_size['height']);
+      if ($result) {
+        clearstatcache();
+        $file->filesize = filesize($file->filepath);
+        drupal_set_message(t('The original image was resized to fit within the maximum allowed resolution of %width x %height pixels.', array('%width' => $original_size['width'], '%height' => $original_size['height'])));
+      }
+    }
+
+    // Check the file size limit.
+    if ($file->filesize > variable_get('image_max_upload_size', 800) * 1024) {
+      form_set_error('image', t('The image you uploaded was too big. You are only allowed upload files less than %max_size but your file was %file_size.', array('%max_size' => format_size(variable_get('image_max_upload_size', 800) * 1024), '%file_size' => format_size($file->filesize))));
+      file_delete($file->filepath);
+      return;
+    }
+
+    // We're good to go.
+    $form_state['values']['images'][IMAGE_ORIGINAL] = $file->filepath;
+    $form_state['values']['rebuild_images'] = FALSE;
+    $form_state['values']['new_file'] = TRUE;
+
+    // Call hook to allow other modules to modify the original image.
+    module_invoke_all('image_alter', $form_state['values'], $form_state['values']['images'][IMAGE_ORIGINAL], IMAGE_ORIGINAL);
+    $form_state['values']['images'] = _image_build_derivatives((object) $form_state['values'], TRUE);
+
+    // Store the new file into the session.
+    $_SESSION['image_upload'] = $form_state['values']['images'];
+  }
+  elseif (empty($form_state['values']['images'][IMAGE_ORIGINAL])) {
+    if (empty($_SESSION['image_upload'])) {
+      form_set_error('image', t('You must upload an image.'));
+    }
   }
 }
 
-function image_submit($node) {
-  $nid = ($node->nid) ? $node->nid : 'new_node';
-  if (isset($_SESSION['image_new_files'][$nid])) {
-    $node->new_file = TRUE;
-    $node->rebuild_images = FALSE;
-    $node->images = $_SESSION['image_new_files'][$nid];
-    unset($_SESSION['image_new_files'][$nid]);
+function image_form_submit($form, &$form_state) {
+  if (!empty($_SESSION['image_upload'])) {
+    $form_state['values']['images'] = $_SESSION['image_upload'];
+    $form_state['values']['new_file'] = TRUE;
+    unset($_SESSION['image_upload']);
   }
 }
 
@@ -444,7 +455,7 @@ function image_view($node, $teaser = 0, $page = 0) {
 }
 
 /**
- * Implementation of hook_load
+ * Implementation of hook_load().
  */
 function image_load(&$node) {
   $result = db_query("SELECT i.image_size, f.filepath FROM {image} i INNER JOIN {files} f ON i.fid = f.fid WHERE i.nid = %d", $node->nid);
@@ -453,7 +464,7 @@ function image_load(&$node) {
     $node->images[$file->image_size] = file_create_path($file->filepath);
   }
 
-  $original_path = $node->images[IMAGE_ORIGINAL];
+  $original_path = (isset($node->images[IMAGE_ORIGINAL]) ? $node->images[IMAGE_ORIGINAL] : NULL);
   if (empty($original_path)) {
     // There's no original image, we're in trouble...
     return;
@@ -474,7 +485,7 @@ function image_load(&$node) {
     }
     else {
       // Need to remove an extra derivative image in the database.
-      if (image_access('update', $node)) {
+      if (image_access('update', $node, $GLOBALS['user'])) {
         drupal_set_message(t("%title's has an unneeded %key derivative images. The derivatives will be rebuilt to remove it.", array('%title' => $node->title, '%key' => $key)));
       }
       $node->rebuild_images = TRUE;
@@ -486,13 +497,13 @@ function image_load(&$node) {
     // If the file is missing or created after the last change to the sizes,
     // rebuild the derivatives.
     if (empty($node->images[$key]) || !file_exists($node->images[$key])) {
-      if (image_access('update', $node)) {
+      if (image_access('update', $node, $GLOBALS['user'])) {
         drupal_set_message(t("%title's %key derivative image %filepath was missing. The derivatives will be rebuilt to regenerate it.", array('%title' => $node->title, '%key' => $key, '%filepath' => isset($node->images[$key]) ? $node->images[$key] : '')));
       }
       $node->rebuild_images = TRUE;
     }
     else if (filemtime($node->images[$key]) < variable_get('image_updated', 0)) {
-      if (image_access('update', $node)) {
+      if (image_access('update', $node, $GLOBALS['user'])) {
         drupal_set_message(t("%title's %key derivative image had a timestamp (%filetime) that predates the last changes to the image size settings (%vartime). The derivatives will be rebuilt to regenerate it.", array('%title' => $node->title, '%key' => $key, '%filetime' => format_date(filemtime($node->images[$key])), '%vartime' => format_date(variable_get('image_updated', 0)))));
       }
       $node->rebuild_images = TRUE;
@@ -561,7 +572,7 @@ function image_update(&$node) {
     }
     else if (!empty($node->rebuild_images)) {
       // Find the original image.
-      $original_file = db_fetch_object(db_query("SELECT i.fid, f.filepath FROM {image} i INNER JOIN {files} f ON i.fid = f.fid WHERE i.nid = %d AND image_size = '%s'", $node->nid, IMAGE_ORIGINAL));
+      $original_file = db_fetch_object(db_query("SELECT i.fid, f.filepath FROM {image} i INNER JOIN {files} f ON i.fid = f.fid WHERE i.nid = %d AND i.image_size = '%s'", $node->nid, IMAGE_ORIGINAL));
 
       // Delete all but the original image.
       $result = db_query("SELECT i.fid, f.filepath FROM {image} i INNER JOIN {files} f ON i.fid = f.fid WHERE i.nid = %d AND f.fid <> %d", $node->nid, $original_file->fid);
@@ -578,7 +589,7 @@ function image_update(&$node) {
 
       // Display a message to the user if they're be able to modify the node
       // (this might have been called as part of a rebuild by a visitor).
-      if (image_access('update', $node)) {
+      if (image_access('update', $node, $GLOBALS['user'])) {
         drupal_set_message(t('The derivative images for <a href="@link">@title</a> have been regenerated.', array('@link' => url('node/'. $node->nid), '@title' => $node->title)));
       }
 
@@ -617,8 +628,15 @@ function image_display(&$node, $label = IMAGE_PREVIEW, $attributes = array()) {
 
   $image_info = image_get_info(file_create_path($node->images[$label]));
   $attributes['class'] = "image image-$label ". (isset($attributes['class']) ? $attributes['class'] : "");
-  $attributes['width'] = $image_info['width'];
-  $attributes['height'] = $image_info['height'];
+  // Only output width/height attributes if image_get_info() was able to detect
+  // the image dimensions, since certain browsers interpret an empty attribute
+  // value as zero.
+  if (!empty($image_info['width'])) {
+    $attributes['width'] = $image_info['width'];
+  }
+  if (!empty($image_info['height'])) {
+    $attributes['height'] = $image_info['height'];
+  }
 
   return theme('image_display', $node, $label, file_create_url($node->images[$label]), $attributes);
 }
@@ -643,6 +661,9 @@ function image_fetch($nid = 0, $size = IMAGE_PREVIEW) {
       if (isset($node->images[$size])) {
         $file = $node->images[$size];
         $headers = image_file_download($file);
+        if ($headers == -1) {
+          return drupal_access_denied();
+        }
         file_transfer($file, $headers);
       }
     }
@@ -675,14 +696,22 @@ function theme_image_display($node, $label, $url, $attributes) {
  * Theme a random block
  */
 function theme_image_block_random($images, $size) {
-  return l(image_display($images[0], $size), 'node/'. $images[0]->nid, array('html' => TRUE));
+  $output = '';
+  foreach ($images as $image) {
+    $output .= l(image_display($image, $size), 'node/'. $image->nid, array('html' => TRUE));
+  }
+  return $output;
 }
 
 /**
  * Theme a latest block
  */
 function theme_image_block_latest($images, $size) {
-  return l(image_display($images[0], $size), 'node/'. $images[0]->nid, array('html' => TRUE));
+  $output = '';
+  foreach ($images as $image) {
+    $output .= l(image_display($image, $size), 'node/'. $image->nid, array('html' => TRUE));
+  }
+  return $output;
 }
 
 /**
@@ -710,7 +739,7 @@ function image_get_latest($count = 1, $tid = 0) {
     $result = db_query_range(db_rewrite_sql("SELECT n.nid FROM {term_node} tn LEFT JOIN {node} n ON n.nid=tn.nid WHERE n.type='image' AND n.status=1 AND tn.tid=%d ORDER BY n.changed DESC"), $tid, 0, $count);
   }
   else {
-    $result = db_query_range(db_rewrite_sql("SELECT n.nid FROM {node} n WHERE n.type='image' AND n.status=1 ORDER BY changed DESC"), 0, $count);
+    $result = db_query_range(db_rewrite_sql("SELECT n.nid FROM {node} n WHERE n.type = 'image' AND n.status = 1 ORDER BY n.changed DESC"), 0, $count);
   }
   $output = array();
   while ($nid = db_fetch_object($result)) {
@@ -724,8 +753,7 @@ function image_get_latest($count = 1, $tid = 0) {
  */
 function _image_check_settings() {
   // File paths
-  $image_path = rtrim(variable_get('image_default_path', 'images'), '/');
-  $image_path = file_create_path(file_directory_path() .'/'. $image_path);
+  $image_path = file_create_path(file_directory_path() .'/'. variable_get('image_default_path', 'images'));
   $temp_path = $image_path .'/temp';
 
   if (!file_check_directory($image_path, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS, 'image_default_path')) {
@@ -837,9 +865,9 @@ function _image_build_derivatives($node, $temp = FALSE) {
  * Creates an image filename.
  */
 function _image_filename($filename, $label = IMAGE_ORIGINAL, $temp = FALSE) {
-  $path = variable_get('image_default_path', 'images') .'/';
+  $path = file_directory_path() .'/'. variable_get('image_default_path', 'images');
   if ($temp) {
-    $path .= 'temp/';
+    $path .= '/temp';
   }
 
   $filename = basename($filename);
@@ -850,7 +878,7 @@ function _image_filename($filename, $label = IMAGE_ORIGINAL, $temp = FALSE) {
     if ($pos === false) {
       // The file had no extension - which happens in really old image.module
       // versions, so figure out the extension.
-      $image_info = image_get_info(file_create_path($path . $filename));
+      $image_info = image_get_info(file_create_path($path .'/'. $filename));
       $filename = $filename .'.'. $label .'.'. $image_info['extension'];
     }
     else {
@@ -858,7 +886,7 @@ function _image_filename($filename, $label = IMAGE_ORIGINAL, $temp = FALSE) {
     }
   }
 
-  return file_create_path($path . $filename);
+  return file_create_path($path .'/'. $filename);
 }
 
 /**
@@ -1043,3 +1071,18 @@ function image_views_api() {
   );
 }
 
+/**
+ * Implementation of hook_content_extra_fields().
+ *
+ * Lets CCK expose the image weight in the node content.
+ */
+function image_content_extra_fields($type_name) {
+  if ($type_name == 'image') {
+    $extra['image'] = array(
+      'label' => t('Image'),
+      'description' => t('Image display.'),
+      'weight' => 0,
+    );
+    return $extra;
+  }
+}

@@ -1,5 +1,5 @@
 <?php
-// $Id: image_import.pages.inc,v 1.2 2008/12/27 06:58:41 drewish Exp $
+// $Id: image_import.pages.inc,v 1.3 2009/03/09 03:22:43 sun Exp $
 
 function image_import_validate_file($file) {
   $errors = array();
@@ -38,6 +38,8 @@ function image_import_form() {
   pager_query('SELECT %d', $page_size, 0, 'SELECT %d', array(count($files)));
   $files = array_slice($files, $GLOBALS['pager_page_array'][0] * $page_size, $page_size);
 
+  $file_metadata_modules = module_implements('file_metadata');
+
   if ($files) {
     if (module_exists('taxonomy')) {
       // here's a little hack to get the taxonomy controls onto our form
@@ -59,6 +61,13 @@ function image_import_form() {
       $filelist[$index] = substr($file->filename, strlen($dirpath) + 1);
 
       $problems = image_import_validate_file($file);
+      // Allow other modules to supply metadata about the images being imported.
+      // hook_file_metadata() may populate the $file properties 'title' and
+      // 'description'.
+      foreach ($file_metadata_modules as $module) {
+        $function = $module . '_file_metadata';
+        $function($file);
+      }
 
       // Spit out the import form elements.
       $form['files']['import'][$index] = array(
@@ -76,11 +85,12 @@ function image_import_form() {
       $form['files']['title'][$index] = array(
         '#type' => 'textfield',
         '#size' => 20,
-        '#default_value' => basename($file->name),
+        '#default_value' => isset($file->title) ? $file->title : basename($file->name),
       );
       $form['files']['body'][$index] = array(
         '#type' => 'textfield',
         '#size' => 20,
+        '#default_value' => isset($file->body) ? $file->body : basename($file->name),
       );
 
       // If there were problems don't let them import it

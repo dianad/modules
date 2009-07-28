@@ -1,5 +1,5 @@
 <?php
-
+// $Id: image_attach_views_handler_field_iid.inc,v 1.3 2009/03/06 01:53:36 sun Exp $
 
 /**
  * Render an Image Attach field with options to control the size of the image
@@ -39,7 +39,7 @@ class image_attach_views_handler_field_iid extends views_handler_field {
   }
 
   function render($values) {
-    $image_node = node_load($values->image_attach_iid);
+    $image_node = node_load($values->{$this->field_alias});
 
     if (!$image_node && node_access('view', $image_node)) {
       return '';
@@ -48,8 +48,10 @@ class image_attach_views_handler_field_iid extends views_handler_field {
     switch($this->options['as_link']) {
       case 'node':
         return l(image_display($image_node, $this->options['size']), 'node/' . $values->nid, array('html' => true));
+
       case 'image':
         return l(image_display($image_node, $this->options['size']), 'node/' . $image_node->nid, array('html' => true));
+
       default:
         return image_display($image_node, $this->options['size']);
     }
