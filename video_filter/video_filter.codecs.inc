@@ -1,5 +1,5 @@
 <?php
-// $Id: video_filter.codecs.inc,v 1.3.2.7 2009/03/29 20:09:53 blackdog Exp $
+// $Id: video_filter.codecs.inc,v 1.3.2.14 2009/08/16 11:07:13 blackdog Exp $
 
 function video_filter_codec_info() {
   $codecs = array();
@@ -13,7 +13,7 @@ function video_filter_codec_info() {
   $codecs['google'] = array(
     'name' => t('Google Video'),
     'callback' => 'video_filter_google',
-    'regexp' => '/video\.google\.com\/videoplay\?docid=(\-?[0-9]+)/',
+    'regexp' => '/video\.google\.[a-z]+\/videoplay\?docid=(\-?[0-9]+)/',
     'ratio' => 400 / 326,
   );
   $codecs['tangle'] = array(
@@ -33,12 +33,6 @@ function video_filter_codec_info() {
     'callback' => 'video_filter_eyespot',
     'regexp' => '/eyespot\.com\/.*r=([a-z0-9]+)/i',
     'ratio' => 432 / 407,
-  );
-  $codecs['jumpcut'] = array(
-    'name' => t('Jumpcut'),
-    'callback' => 'video_filter_jumpcut',
-    'regexp' => '/jumpcut\.com\/.*id=([A-Z0-9]+)/',
-    'ratio' => 408 / 324,
   );
   $codecs['revver'] = array(
     'name' => t('Revver'),
@@ -94,12 +88,36 @@ function video_filter_codec_info() {
     'regexp' => '/vids\.myspace\.com\/.*VideoID=([0-9]+)/i',
     'ratio' => 425 / 360,
   );
+  $codecs['capped'] = array(
+    'name' => t('Capped'),
+    'callback' => 'video_filter_capped',
+    'regexp' => '/capped\.tv\/([a-zA-Z0-9\-_]+)/',
+    'ratio' => 425 / 355,
+  );
+  $codecs['bliptv'] = array(
+    'name' => t('Blip.tv'),
+    'callback' => 'video_filter_bliptv',
+    'regexp' => array(
+                  '@blip\.tv/rss/flash/([^"\&\?/]+)@i',
+                  '@blip\.tv/file/view/([^"\&\?/]+)@i',
+                  '@blip\.tv/file/([^"\&\?/]+)@i',
+                  '@blip\.tv/play/([^"\&\?/]+)@i',
+                ),
+    'ratio' => 480 / 335,
+  );
+  $codecs['slideshare'] = array(
+    'name' => t('Slideshare'),
+    'callback' => 'video_filter_slideshare',
+    'instructions' => t('You need to construct your own URL, using the "Wordpress Embed" code from Slideshare, extract the "id" and "doc" parts, and form the URL like this: slideshare.net/?id=1759622&amp;doc=usingdrupal-090723103440-phpapp01.'),
+    'regexp' => '/slideshare\.net\/\?id=([a-z0-9]+).*doc=([a-z0-9-]+)/',
+    'ratio' => 500 / 410,
+  );
 
   return $codecs;
 }
 
 function video_filter_youtube($video) {
-  $video['source'] = 'http://www.youtube.com/v/'.$video['codec']['matches'][1].($video['autoplay'] ? '&autoplay=1' : '').'&amp;fs=1';
+  $video['source'] = 'http://www.youtube.com/v/'.$video['codec']['matches'][1].($video['autoplay'] ? '&amp;autoplay=1' : '').'&amp;fs=1'.($video['related'] ? '' : '&amp;rel=0');
 
   return video_filter_flash($video);
 }
@@ -128,12 +146,6 @@ function video_filter_eyespot($video) {
   return video_filter_flash($video);
 }
 
-function video_filter_jumpcut($video) {
-  $video['source'] = 'http://jumpcut.com/media/flash/jump.swf?id='.$video['codec']['matches'][1].'&amp;asset_type=movie&amp;asset_id='.$video['codec']['matches'][1].'&amp;eb=1';
-
-  return video_filter_flash($video);
-}
-
 function video_filter_revver($video) {
   $output = '<script src="http://flash.revver.com/player/1.0/player.js?mediaId:'.$video['codec']['matches'][1].';width:'.$video['width'].';height:'.$video['height'].';" type="text/javascript"></script>';
 
@@ -141,7 +153,7 @@ function video_filter_revver($video) {
 }
 
 function video_filter_vimeo($video) {
-  $video['source'] = 'http://www.vimeo.com/moogaloop.swf?clip_id='.$video['codec']['matches'][1].'&amp;server=www.vimeo.com&amp;fullscreen=1&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=';
+  $video['source'] = 'http://www.vimeo.com/moogaloop.swf?clip_id='.$video['codec']['matches'][1].'&amp;server=www.vimeo.com&amp;fullscreen=1&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;autoplay='.$video['autoplay'];
 
   return video_filter_flash($video);
 }
@@ -194,4 +206,65 @@ function video_filter_myspace($video) {
   $video['source'] = 'http://mediaservices.myspace.com/services/media/embed.aspx/m='.$video['codec']['matches'][1];
 
   return video_filter_flash($video, $params);
+}
+
+function video_filter_capped($video) {
+  $video['source'] = 'http://capped.micksam7.com/playeralt.swf?vid='.$video['codec']['matches'][1];
+
+  return video_filter_flash($video);
+}
+
+function video_filter_bliptv($video) {
+  $id = $video['codec']['matches'][1];
+  
+  // Since video ID in URL is different than in embed code, use API
+  // to lookup the embed code video ID. Adapted from emfield.module.
+  $result = drupal_http_request('http://blip.tv/file/' . $id . '?skin=api');
+
+  if ($result->code == 200) {
+    $parser = drupal_xml_parser_create($result->data);
+    $vals = array();
+    $index = array();
+    xml_parse_into_struct($parser, $result->data, $vals, $index);
+    xml_parser_free($parser);
+  
+    $response = array();
+    $response['_emfield_arghash'] = $arghash;
+    $level = array();
+    $start_level = 1;
+    foreach ($vals as $xml_elem) {
+      if ($xml_elem['type'] == 'open') {
+        if (array_key_exists('attributes', $xml_elem)) {
+          list($level[$xml_elem['level']], $extra) = array_values($xml_elem['attributes']);
+        }
+        else {
+          $level[$xml_elem['level']] = $xml_elem['tag'];
+        }
+      }
+      if ($xml_elem['type'] == 'complete') {
+        $php_stmt = '$response';
+        while ($start_level < $xml_elem['level']) {
+          $php_stmt .= '[$level['. $start_level .']]';
+          $start_level++;
+        }
+        $php_stmt .= '[$xml_elem[\'tag\']][] = $xml_elem[\'value\'];'. $php_stmt .'[$xml_elem[\'tag\']][] = $xml_elem[\'attributes\'];';
+        eval($php_stmt);
+        $start_level--;
+      }
+    }
+    $id = $response['EMBEDLOOKUP'][0];
+  }
+  
+  $video['source'] = 'http://blip.tv/play/' . $id;
+  $params = array(
+    'allowscriptaccess' => 'always',
+  );
+  
+  return video_filter_flash($video, $params);
+}
+
+function video_filter_slideshare($video) {
+  $video['source'] = 'http://static.slideshare.net/swf/ssplayer2.swf?id=' . $video['codec']['matches'][1] . '&amp;doc=' . ($video['codec']['matches'][2]);
+
+  return video_filter_flash($video);
 }

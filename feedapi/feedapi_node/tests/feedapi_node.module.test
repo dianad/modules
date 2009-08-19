@@ -1,5 +1,5 @@
 <?php
-// $Id: feedapi_node.module.test,v 1.1.4.25 2009/06/19 15:46:28 aronnovak Exp $
+// $Id: feedapi_node.module.test,v 1.1.4.26 2009/08/11 07:05:13 aronnovak Exp $
 
 /**
  * Class for testing feedapi_node.
@@ -493,5 +493,22 @@ EOT;
     $this->assertText($item->title, 'The item node really appears on the first page.');
     
   }
-  
+
+  /**
+   * Checks FeedAPI saves invalid feed URLs (e. g. if parser cannot parse at the moment).
+   * d.o. #260670
+   */
+  function testParserFalseResult() {
+    $this->create_type(array_pop($this->get_parsers()));
+    $settings = feedapi_get_settings($this->info->type);
+    $this->feedapi_user();
+    $feedapi_url = "http://". $this->randomName(20, '') .".". $this->randomName(2, '');
+    $edit = array(
+      'feedapi[feedapi_url]' => $feedapi_url,
+      'title' => $this->randomName(10),
+    );
+    $this->drupalPost('node/add/'. $this->info->type, $edit, 'Save');
+    $node = db_result(db_query("SELECT nid FROM {feedapi} WHERE url = '%s'", $edit['feedapi[feedapi_url]']));
+    $this->assertTrue(($node != FALSE), 'The inaccessible feed URL was inserted in the database.');
+  }
 }

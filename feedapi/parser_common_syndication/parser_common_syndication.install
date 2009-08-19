@@ -1,5 +1,5 @@
 <?php
-// $Id: parser_common_syndication.install,v 1.1.2.4.2.9 2009/07/02 16:38:16 aronnovak Exp $
+// $Id: parser_common_syndication.install,v 1.1.2.4.2.10 2009/08/04 13:41:20 aronnovak Exp $
 
 /**
  * @file
@@ -74,10 +74,7 @@ function parser_common_syndication_uninstall() {
  */
 function parser_common_syndication_update_6101() {
   $ret = array();
-  $result = db_query("SELECT url FROM {parser_common_syndication}");
-  while ($url = db_fetch_array($result)) {
-    $ret[] = update_sql("UPDATE {parser_common_syndication} SET url = '%s' WHERE url = '%s'", md5($url['url']), $url['url']);
-  }
+  db_query('DELETE FROM {parser_common_syndication}');
   db_change_field($ret, 'parser_common_syndication', 'url', 'url', array(
         'description' => t('The MD5 hash of feed URL'),
         'type' => 'varchar',

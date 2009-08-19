@@ -1,5 +1,5 @@
 <?php
-// $Id: feedapi.module,v 1.23.2.119.2.67 2009/07/06 14:50:12 aronnovak Exp $
+// $Id: feedapi.module,v 1.23.2.119.2.72 2009/08/11 06:54:09 aronnovak Exp $
 
 /**
  * @file
@@ -143,10 +143,10 @@ function feedapi_nodeapi(&$node, $op, $teaser, $page) {
         }
         break;
       case 'insert':
-        _feedapi_insert($node, $teaser, $page);
+        _feedapi_insert($node);
         break;
       case 'update':
-        _feedapi_update($node, $teaser, $page);
+        _feedapi_update($node);
         break;
       case 'load':
         if ($feed = db_fetch_object(db_query('SELECT * FROM {feedapi} WHERE vid = %d', $node->vid))) {
@@ -581,6 +581,10 @@ function feedapi_form_alter(&$form, $form_state, $form_id) {
  * See feedapi_form_alter on finding out how it is called (via FormAPI)
  */
 function feedapi_node_validate($form, &$form_state) {
+  // Don't validate when deleting.
+  if ($form_state['values']['op'] == t('Delete')) {
+    return TRUE;
+  }
   // Upload file.
   $feed_dir = file_directory_path() .'/feeds';
   file_check_directory($feed_dir, TRUE);
@@ -879,7 +883,7 @@ function feedapi_refresh($node, $destination_path = NULL) {
 /**
  * Insert feedapi data to the DB when it's a new for for FeedAPI
  */
-function _feedapi_insert(&$node, $teaser, $page) {
+function _feedapi_insert(&$node) {
 
   if (isset($node->feed->url) && isset($node->feed->feed_type)) {
     if (isset($node->feedapi)) {
@@ -924,19 +928,20 @@ function _feedapi_insert(&$node, $teaser, $page) {
 /**
  * Update feed data of an existing feed
  */
-function _feedapi_update(&$node, $teaser, $page) {
+function _feedapi_update(&$node) {
   if (isset($node->feed)) {
     $old_config = node_load($node->nid);
 
     // In that case this feed has never have feed data. Should be created then, this is not really an update
     if (!is_numeric($old_config->feed->nid)) {
-      $node->feed = _feedapi_build_feed_object($node->type, $node->feed->url);
-      _feedapi_insert($node, 'insert', $teaser, $page);
+      $url = isset($node->feed->url) ? $node->feed->url : $node->feedapi['feedapi_url'];
+      $node->feed = _feedapi_build_feed_object($node->type, $url);
+      _feedapi_insert($node);
       return;
     }
     $old_vid = db_result(db_query_range("SELECT vid FROM {feedapi} WHERE nid = %d ORDER BY vid DESC", $node->nid, 0, 1));
     if ($old_vid !== $node->vid) {
-      _feedapi_insert($node, 'insert', $teaser, $page);
+      _feedapi_insert($node);
       return;
     }
     // Only change next_refresh_time if refresh_time changed
@@ -1000,7 +1005,7 @@ function _feedapi_call_parsers($feed, $parsers, $settings) {
     $feed->feed_type =  module_invoke($parser_primary, 'feedapi_feed', 'compatible', $feed, $settings_primary);
     $parser_output =  module_invoke($parser_primary, 'feedapi_feed', 'parse', $feed, $settings_primary);
     if ($parser_output === FALSE) {
-      return $parser_output;
+      return $feed;
     }
     $feed = (object) array_merge((array) $feed, (array) $parser_output);
   }
@@ -1036,11 +1041,13 @@ function _feedapi_call_parsers($feed, $parsers, $settings) {
       }
     }
   }
-  $props = array_keys(get_object_vars($feed->options));
-  foreach ($props as $property) {
-    if (isset($feed->options->{$property})) {
-      if (is_string($feed->options->{$property})) {
-        $feed->options->{$property} = _feedapi_process_text($feed->options->{$property}, $allowed);
+  if (isset($feed->options)) {
+    $props = array_keys(get_object_vars($feed->options));
+    foreach ($props as $property) {
+      if (isset($feed->options->{$property})) {
+        if (is_string($feed->options->{$property})) {
+          $feed->options->{$property} = _feedapi_process_text($feed->options->{$property}, $allowed);
+        }
       }
     }
   }
@@ -1189,7 +1196,7 @@ function _feedapi_invoke_refresh(&$feed, $param) {
   }
 
   // Step 3: See, whether feed has been modified.
-  if ($feed === FALSE || $hash_old == $feed->hash) {
+  if (!isset($feed->items) || $hash_old == $feed->hash) {
     // Updated the next_refresh_time field in any case.
     db_query("UPDATE {feedapi} SET next_refresh_time = %d, half_done = %d WHERE nid = %d", time() + $settings['refresh_time'], FALSE, $nid);
     if (!$cron) {
@@ -1397,7 +1404,7 @@ function feedapi_get_settings($node_type, $vid = FALSE, $reset = FALSE) {
 
   // Fallback: node_type.
   if (isset($node_type) && is_string($node_type)) {
-    if ($settings = variable_get('feedapi_settings_'. $node_type, FALSE)) {
+    if (($settings = variable_get('feedapi_settings_'. $node_type, FALSE)) && ($settings['enabled'] == 1)) {
       // Sanitize data right now, tricky users may turned off the module
       foreach (array('parsers', 'processors') as $type) {
         if (isset($settings[$type]) && is_array($settings[$type])) {
