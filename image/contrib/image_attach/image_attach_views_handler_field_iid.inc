@@ -1,11 +1,19 @@
 <?php
-// $Id: image_attach_views_handler_field_iid.inc,v 1.3 2009/03/06 01:53:36 sun Exp $
+// $Id: image_attach_views_handler_field_iid.inc,v 1.4 2009/08/08 16:40:58 joachim Exp $
 
 /**
  * Render an Image Attach field with options to control the size of the image
  * and the style of the link.
  */
 class image_attach_views_handler_field_iid extends views_handler_field {
+  /**
+   * Constructor to provide additional field to add.
+   */
+  function construct() {
+    parent::construct();
+    $this->additional_fields['nid'] = 'nid';
+  }
+
   function option_definition() {
     $options = parent::option_definition();
 
@@ -47,7 +55,7 @@ class image_attach_views_handler_field_iid extends views_handler_field {
 
     switch($this->options['as_link']) {
       case 'node':
-        return l(image_display($image_node, $this->options['size']), 'node/' . $values->nid, array('html' => true));
+        return l(image_display($image_node, $this->options['size']), 'node/' . $values->{$this->aliases['nid']}, array('html' => true));
 
       case 'image':
         return l(image_display($image_node, $this->options['size']), 'node/' . $image_node->nid, array('html' => true));

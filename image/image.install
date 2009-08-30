@@ -1,5 +1,5 @@
 <?php
-// $Id: image.install,v 1.25 2009/05/17 02:17:47 sun Exp $
+// $Id: image.install,v 1.27 2009/08/08 22:37:14 joachim Exp $
 
 /**
  * Implementation of hook_schema().
@@ -334,3 +334,20 @@ function image_update_6102() {
   return $ret;
 }
 
+/**
+ * Rename permission "edit images" to "edit any images".
+ */
+function image_update_6103() {
+  $ret = array();
+  $result = db_query("SELECT rid, perm FROM {permission} ORDER BY rid");
+  while ($role = db_fetch_object($result)) {
+    $renamed_permission = strtr($role->perm, array(
+      'edit images' => 'edit any images, delete any images',
+      'edit own images' => 'edit own images, delete own images',
+    ));
+    if ($renamed_permission != $role->perm) {
+      $ret[] = update_sql("UPDATE {permission} SET perm = '$renamed_permission' WHERE rid = $role->rid");
+    }
+  }
+  return $ret;
+}

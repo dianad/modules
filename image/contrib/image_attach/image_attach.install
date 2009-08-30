@@ -1,5 +1,5 @@
 <?php
-// $Id: image_attach.install,v 1.15 2009/02/01 00:36:43 sun Exp $
+// $Id: image_attach.install,v 1.17 2009/08/26 17:19:03 joachim Exp $
 
 /**
  * Implementation of hook_schema().
@@ -22,8 +22,14 @@ function image_attach_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'weight' => array(
+        'description' => 'The display order of attached images.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
     ),
-    'primary key' => array('nid'),
+    'primary key' => array('nid', 'iid'),
     'indexes' => array(
       'iid' => array('iid'),
     ),
@@ -104,6 +110,33 @@ function image_attach_update_6100() {
   db_add_primary_key($ret, 'image_attach', array('nid'));
   db_drop_index($ret, 'image_attach', 'iid');
   db_add_index($ret, 'image_attach', 'iid', array('iid'));
+  return $ret;
+}
+
+/**
+ * Delete bad entry in {blocks} table due to old bug.
+ * Next visit to blocks admin page will rehash and show the block.
+ * @see <http://drupal.org/node/426724>
+ */
+function image_attach_update_6101() {
+  $ret = array();
+  $ret[] = update_sql("DELETE FROM {blocks} WHERE blocks.module = 'image_attach' AND blocks.delta = 0");
+
+  return $ret;  
+}
+
+/**
+ * Adjust primary key on {image_attach} to allow multiple attachments.
+ */
+function image_attach_update_6102() {
+  $ret = array();
+  db_drop_primary_key($ret, 'image_attach');
+  db_add_primary_key($ret, 'image_attach', array('nid', 'iid'));
+  db_add_field($ret, 'image_attach', 'weight', array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  ));
   return $ret;
 }
 

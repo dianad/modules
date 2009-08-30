@@ -1,5 +1,5 @@
 <?php
-// $Id: image.test,v 1.6 2009/05/22 19:32:30 sun Exp $
+// $Id: image.test,v 1.11 2009/08/26 14:42:04 joachim Exp $
 
 /**
  * Test image functionality.
@@ -21,7 +21,8 @@ class ImageTestCase extends DrupalWebTestCase {
     parent::setUp('image');
 
     // User to create images.
-    $this->web_user = $this->drupalCreateUser(array('create images', 'view original images', 'edit own images', 'edit images'));
+    $this->web_user = $this->drupalCreateUser(array('create images', 'view original images', 'edit own images', 'edit any images',
+      'delete own images', 'delete any images', 'administer site configuration'));    
     $this->drupalLogin($this->web_user);
 
     // Uploadable image.
@@ -196,6 +197,80 @@ class ImageTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Verify derivatives take their path from the original image.
+   */
+  function testImageDerivativePath() {
+    // Create an image.
+    $edit = array(
+      'title' => $this->randomName(),
+      'body' => $this->randomName(),
+      'files[image]' => realpath($this->image),
+    );
+    $this->drupalPost('node/add/image', $edit, t('Save'));
+
+    $this->assertRaw(t('@type %title has been created.', array('@type' => 'Image', '%title' => $edit['title'])),
+      t('Image node was created.'));
+
+    $node = node_load(array('title' => $edit['title']));
+    $this->assertTrue($node, t('Image node is found in database.'));
+
+    // Change the file path using admin form.
+    $config_change = array(
+      'image_default_path' => 'images_alternate',
+    );
+    $this->drupalPost('admin/settings/image', $config_change, t('Save configuration'));
+    $this->assertRaw(t('The configuration options have been saved.'), t('Image path was changed.'));
+
+    // Create another image.
+    $second_edit = array(
+      'title' => $this->randomName(),
+      'body' => $this->randomName(),
+      'files[image]' => realpath($this->another_image),
+    );
+    $this->drupalPost('node/add/image', $second_edit, t('Save'));
+
+    // Test that image node was created and that it has the correct path.
+    $this->assertRaw(t('@type %title has been created.', array('@type' => 'Image', '%title' => $second_edit['title'])),
+      t('Second image node was created.'));
+    $second_node = node_load(array('title' => $second_edit['title']));
+    $this->assertTrue($second_node, t('Second image node is found in database.'));
+
+    $this->assertTrue(preg_match('/images_alternate/', $second_node->images['_original']),
+      t("New path {$second_node->images['_original']} used for second image."));
+
+    // Delete physical files for first image's derivatives.
+    file_delete($node->images['preview']);
+    $this->assertFalse(file_exists($node->images['preview']), t('First image preview image file deleted.'));
+    file_delete($node->images['thumbnail']);
+    $this->assertFalse(file_exists($node->images['thumbnail']), t('First image thumbnail image file deleted.'));
+
+    // Edit the first image to rebuild derivatives.
+    $another_edit = array(
+      'rebuild_images' => TRUE,
+    );
+    $this->drupalPost('node/' . $node->nid . '/edit', $another_edit, t('Save'));
+    $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Image', '%title' => $edit['title'])),
+      t('First image node was updated to rebuild derivatives.'));
+
+    // Reload first image node.
+    $first_node = node_load(array('title' => $edit['title']));
+
+    // Compare regenerated thumbnail paths with original node.
+    $this->assertTrue($node->images['thumbnail'] == $first_node->images['thumbnail'], t("Rebuilt derivatives for first image have same thumbnail path as original node: {$node->images['thumbnail']} == regenerated thumbnail path {$first_node->images['thumbnail']}")); 
+
+    // Check regenerated files physically exist.
+    $this->assertTrue(file_exists($first_node->images['preview']), t('First image preview file exists.'));
+    $this->assertTrue(file_exists($first_node->images['thumbnail']), t('First image thumbnail file exists.'));
+
+    // Change the file path back using admin form.
+    $config_change = array(
+      'image_default_path' => 'images',
+    );
+    $this->drupalPost('admin/settings/image', $config_change, t('Save configuration'));
+    $this->assertRaw(t('The configuration options have been saved.'), t('Image path was changed back.'));
+  } 
+
+  /**
    * Verify that images with missing file information can be deleted from edit form.
    */
   function testImageNodeDeletion() {
@@ -243,7 +318,7 @@ class ImageTestCase extends DrupalWebTestCase {
     $node_api = image_create_node_from(file_directory_temp() . '/' . basename($edit['files[image]']), $edit['title'], $edit['body']);
     $this->assertTrue(is_object($node_api) && $node_api->nid, t('API created image node found in database.'));
     // Rebuild derivative images.
-    $node_api = node_load($node_api->nid);
+    $node_api = node_load($node_api->nid, NULL, TRUE);
 
     // Verify that both nodes are equal.
     $equality = ($node_post->title == $node_api->title);
