@@ -1,4 +1,4 @@
-# $Id: xmlsitemap_user.de.po,v 1.1.2.7 2009/07/02 17:59:41 hass Exp $
+# $Id: xmlsitemap_user.de.po,v 1.1.2.8 2009/07/29 21:09:40 hass Exp $
 #
 # LANGUAGE translation of Drupal (gsitemap.module)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
@@ -9,8 +9,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: German translation of xmlsitemap_user\n"
-"POT-Creation-Date: 2009-07-02 19:50+0200\n"
-"PO-Revision-Date: 2009-07-02 19:58+0100\n"
+"POT-Creation-Date: 2009-07-29 23:02+0200\n"
+"PO-Revision-Date: 2009-07-29 23:09+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: Alexander Hass\n"
 "MIME-Version: 1.0\n"
@@ -41,12 +41,12 @@ msgstr "Die Priorität aller Benutzerrollen wird zusammen mit der standardmäßi
 msgid "User priority"
 msgstr "Benutzerpriorität"
 
-#: xmlsitemap_user/xmlsitemap_user.module:187
+#: xmlsitemap_user/xmlsitemap_user.module:188
 #: xmlsitemap_user/xmlsitemap_user.info:0
 msgid "XML sitemap user"
 msgstr "XML-Sitemap - Benutzer"
 
-#: xmlsitemap_user/xmlsitemap_user.module:188
+#: xmlsitemap_user/xmlsitemap_user.module:189
 msgid "The module adds user profiles to the sitemap. The <em>anonymous user</em> role must have permission to access user profiles on the <a href=\"@access\">access control page</a>. You can change the default user priority on the <a href=\"@user_settings\">user settings</a> page. The <a href=\"@user\">user role priority</a> will override the default user priority. You can override both the default priority and the role priority if you add or edit a user."
 msgstr "Das Modul fügt Benutzerprofile zur Sitemap hinzu. Die <em>Gast</em>-Rolle muss auf der <a href=\"@access\">Zugriffsregeln-Seite</a> die Berechtigung zum Zugriff auf Benutzerprofile haben. Die standardmäßige Benutzerpriorität kann auf der <a href=\"@user_settings\">Benutzereinstellungs</a>-Seite geändert werden. Die <a href=\"@user\">Benutzerrollenpriorität</a> wird die standardmäßige Benutzerpriorität übersteuern. Die standardmäßige Benutzer- und Rollenpriorität kann beim Hinzufügen oder Bearbeiten eines Benutzers übersteuert werden."
 

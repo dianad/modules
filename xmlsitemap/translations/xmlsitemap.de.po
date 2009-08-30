@@ -1,4 +1,4 @@
-# $Id: xmlsitemap.de.po,v 1.1.2.4 2009/07/02 17:59:40 hass Exp $
+# $Id: xmlsitemap.de.po,v 1.1.2.5 2009/07/29 21:09:40 hass Exp $
 #
 # LANGUAGE translation of Drupal (gsitemap.module)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
@@ -9,8 +9,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: German translation of xmlsitemap\n"
-"POT-Creation-Date: 2009-07-02 19:50+0200\n"
-"PO-Revision-Date: 2009-07-02 19:58+0100\n"
+"POT-Creation-Date: 2009-07-29 23:02+0200\n"
+"PO-Revision-Date: 2009-07-29 23:05+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: Alexander Hass\n"
 "MIME-Version: 1.0\n"
@@ -298,23 +298,23 @@ msgid "Sitemap !number"
 msgstr "Sitemap !number"
 
 # Not literally
-#: xmlsitemap.install:506
+#: xmlsitemap.install:507
 msgid "XML sitemap term has been deprecated in favor of XML sitemap taxonomy; enable it in the <a href=\"@modules\">modules page</a>."
 msgstr "Das Modul XML-Sitemap-Begriff wurde zugunsten von XML-Sitemap-Taxonomie abgekündigt. Dieses kann auf der <a href=\"@modules\">Modul-Seite</a> aktiviert werden."
 
 # Useless update hook. We all know that we need delete the entire module folder on a module update and run update.php afterwards.
-#: (duplicate) xmlsitemap.install:550
-#: ;547
+#: (duplicate) xmlsitemap.install:551
+#: ;548
 msgid "You have not correctly followed the installation instructions for this module. You must make certain that the old xmlsitemap/xmlsitemap diretory is removed. The xmlsitemap/xmlsitemap/xmlsitemap.* files have been moved back to the modules root directory. The install instructions were to remove the modules/xmlsitemap directory completely before extracting the update. If you had followed that step you would have prevented this message."
 msgstr ""
 
-#: (duplicate) xmlsitemap.install:567
+#: (duplicate) xmlsitemap.install:577
 msgid "Installation issue"
 msgstr "Installationsproblem"
 
 # Useless update hook. We all know that we need delete the entire module folder on a module update and run update.php afterwards.
-#: (duplicate) xmlsitemap.install:568
-#: ;564
+#: (duplicate) xmlsitemap.install:578
+#: ;574
 msgid "You have not correctly followed the installation instructions for this module. You must make certain that the old xmlsitemap/xmlsitemap diretory is removed. The xmlsitemap/xmlsitemap/xmlsitemap.* files have been moved back to the modules root directory. The install instructions were to removed the modules/xmlsitemap directory completely before extracting the update. If you had followed that step you would have prevented this message."
 msgstr ""
 

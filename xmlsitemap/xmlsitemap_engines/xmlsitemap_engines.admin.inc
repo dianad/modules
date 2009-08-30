@@ -1,5 +1,5 @@
 <?php
-// $Id: xmlsitemap_engines.admin.inc,v 1.1.2.15 2009/06/17 14:52:41 earnie Exp $
+// $Id: xmlsitemap_engines.admin.inc,v 1.1.2.17 2009/08/25 16:52:52 earnie Exp $
 
 
 /**
@@ -63,7 +63,8 @@ function xmlsitemap_engines_settings() {
     '#type' => 'textfield',
     '#title' => t('Submission URL'),
     '#description' => t('The URL to submit the sitemap to. Use %placeholder as placeholder for the sitemap URL.', array('%placeholder' => '[sitemap]')),
-    '#default_value' => variable_get('xmlsitemap_engines_ask_url', 'http://submissions.ask.com/ping?sitemap=[sitemap]'),
+    '#value' => variable_get('xmlsitemap_engines_ask_url', 'http://submissions.ask.com/ping?sitemap=[sitemap]'),
+    '#disabled' => TRUE,
   );
   // Google fields.
   $form['google'] = array(
@@ -81,7 +82,8 @@ function xmlsitemap_engines_settings() {
     '#type' => 'textfield',
     '#title' => t('Submission URL'),
     '#description' => t('The URL to submit the sitemap to. Use %placeholder like placeholder for the sitemap URL.', array('%placeholder' => '[sitemap]')),
-    '#default_value' => variable_get('xmlsitemap_engines_google_url', 'http://www.google.com/webmasters/tools/ping?sitemap=[sitemap]'),
+    '#value' => variable_get('xmlsitemap_engines_google_url', 'http://www.google.com/webmasters/tools/ping?sitemap=[sitemap]'),
+    '#disabled' => TRUE,
   );
   $form['google']['xmlsitemap_engines_google_verify'] = array(
     '#type' => 'textfield',
@@ -105,7 +107,8 @@ function xmlsitemap_engines_settings() {
     '#type' => 'textfield',
     '#title' => t('Submission URL'),
     '#description' => t('The URL to submit the sitemap to. Use %placeholder like placeholder for the sitemap URL.', array('%placeholder' => '[sitemap]')),
-    '#default_value' => variable_get('xmlsitemap_engines_moreover_url', 'http://api.moreover.com/ping?u=[sitemap]'),
+    '#value' => variable_get('xmlsitemap_engines_moreover_url', 'http://api.moreover.com/ping?u=[sitemap]'),
+    '#disabled' => TRUE,
   );
   // Bing fields.
   $form['bing'] = array(
@@ -123,7 +126,8 @@ function xmlsitemap_engines_settings() {
     '#type' => 'textfield',
     '#title' => t('Submission URL'),
     '#description' => t('The URL to submit the sitemap to. Use %placeholder like placeholder for the sitemap URL.', array('%placeholder' => '[sitemap]')),
-    '#default_value' => variable_get('xmlsitemap_engines_bing_url', 'http://www.bing.com/webmaster/ping.aspx?siteMap=[sitemap]'),
+    '#value' => variable_get('xmlsitemap_engines_bing_url', 'http://www.bing.com/webmaster/ping.aspx?siteMap=[sitemap]'),
+    '#disabled' => TRUE,
   );
   $form['bing']['xmlsitemap_engines_bing_verify'] = array(
     '#type' => 'textfield',
@@ -153,7 +157,8 @@ function xmlsitemap_engines_settings() {
     '#type' => 'textfield',
     '#title' => t('Submission URL'),
     '#description' => t('The URL to submit the sitemap to. Use %placeholder like placeholder for the sitemap URL.', array('%placeholder' => '[sitemap]')),
-    '#default_value' => variable_get('xmlsitemap_engines_yahoo_url', 'http://search.yahooapis.com/SiteExplorerService/V1/ping?sitemap=[sitemap]'),
+    '#value' => variable_get('xmlsitemap_engines_yahoo_url', 'http://search.yahooapis.com/SiteExplorerService/V1/ping?sitemap=[sitemap]'),
+    '#disabled' => TRUE,
   );
   $form['yahoo']['xmlsitemap_engines_yahoo_verify'] = array(
     '#type' => 'textfield',

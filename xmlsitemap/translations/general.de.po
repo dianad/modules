@@ -1,4 +1,4 @@
-# $Id: general.de.po,v 1.1.2.6 2009/07/02 17:59:40 hass Exp $
+# $Id: general.de.po,v 1.1.2.7 2009/07/29 21:09:40 hass Exp $
 #
 # LANGUAGE translation of Drupal (gsitemap.module)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
@@ -9,8 +9,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: German translation of xmlsitemap\n"
-"POT-Creation-Date: 2009-07-02 19:50+0200\n"
-"PO-Revision-Date: 2009-07-02 19:52+0100\n"
+"POT-Creation-Date: 2009-07-29 23:02+0200\n"
+"PO-Revision-Date: 2009-07-29 23:05+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: Alexander Hass\n"
 "MIME-Version: 1.0\n"
@@ -48,9 +48,9 @@ msgstr "Jährlich"
 
 #: (duplicate) xmlsitemap.pages.inc:49;52;245;270;281
 #: xmlsitemap.module:0
-#: xmlsitemap.install:566
-#: ;547;564
-#: xmlsitemap_engines/xmlsitemap_engines.module:200;205
+#: xmlsitemap.install:576
+#: ;548;574
+#: xmlsitemap_engines/xmlsitemap_engines.module:194;199
 msgid "xmlsitemap"
 msgstr "xmlsitemap"
 

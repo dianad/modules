@@ -1,5 +1,5 @@
 <?php
-// $Id: xmlsitemap_engines.install,v 1.3.2.23 2009/07/16 14:34:36 earnie Exp $
+// $Id: xmlsitemap_engines.install,v 1.3.2.26 2009/08/25 16:52:52 earnie Exp $
 
 
 /**
@@ -27,7 +27,7 @@ function xmlsitemap_engines_update_6100() {
   $variables = array(
     'ask_url' => 'http://submissions.ask.com/ping?sitemap=[sitemap]',
     'google_url' => 'http://www.google.com/webmasters/tools/ping?sitemap=[sitemap]',
-    'morover_url' => 'http://api.moreover.com/ping?u=[sitemap]',
+    'moreover_url' => 'http://api.moreover.com/ping?u=[sitemap]',
     'live_url' => 'http://webmaster.live.com/ping.aspx?siteMap=[sitemap]',
     'yahoo_url' => 'http://search.yahooapis.com/SiteExplorerService/V1/ping?sitemap=[sitemap]',
   );
@@ -53,8 +53,17 @@ function xmlsitemap_engines_update_6106() {
     'cron_submit_delay',
   );
   foreach ($variables as $variable) {
-    $ret[] = @update_sql("UPDATE {variable} SET name = 'xmlsitemap_engines_{$variable}' WHERE name = 'xmlsitemap_{$variable}'");
-    $ret[] = update_sql("DELETE FROM {variable} WHERE name = 'xmlsitemap_{$variable}'");
+    $oldname = "xmlsitemap_${variable}";
+    $newname = "xmlsitemap_engines_{$variable}";
+    $value = variable_get($oldname, FALSE);
+    if ($value !== FALSE) {
+      variable_set($newname, $value);
+      variable_del($oldname);
+      $ret[] = array(
+        'success' => TRUE,
+        'query' => "Variable name changed from ${oldname} to ${newname}.",
+      );
+    }
   }
   $ret[] = update_sql("UPDATE {system} SET weight = 15 WHERE name = 'xmlsitemap_engines'");
   return $ret;
@@ -95,6 +104,34 @@ function xmlsitemap_engines_update_6108() {
       'query' => $t('Variable "xmlsitemap_engines_cron_timestamp_submit" has been created.'),
     );
   }
+  return $ret;
+}
+
+/**
+ * Delete wrongly named variable xmlsitemap_engines_morover_url.
+ */
+function xmlsitemap_engines_update_6109() {
+  $ret = array();
+  variable_del('xmlsitemap_engines_morover_url');
+  variable_set('xmlsitemap_engines_moreover_url', 'http://api.moreover.com/ping?u=[sitemap]');
+  return $ret;
+}
+
+function xmlsitemap_engines_update_6110() {
+  $variables = array(
+    'ask_url' => 'http://submissions.ask.com/ping?sitemap=[sitemap]',
+    'google_url' => 'http://www.google.com/webmasters/tools/ping?sitemap=[sitemap]',
+    'moreover_url' => 'http://api.moreover.com/ping?u=[sitemap]',
+    'bing_url' => 'http://www.bing.com/webmaster/ping.aspx?siteMap=[sitemap]',
+    'yahoo_url' => 'http://search.yahooapis.com/SiteExplorerService/V1/ping?sitemap=[sitemap]',
+  );
+  foreach ($variables as $variable => $value) {
+    variable_set('xmlsitemap_engines_'. $variable, $value);
+  }
+  $ret[] = array(
+    'success' => TRUE,
+    'query' => 'Updated the module settings successfully.',
+  );
   return $ret;
 }
 

@@ -1,4 +1,31 @@
-$Id: CHANGELOG.txt,v 1.1.4.281 2009/07/24 18:16:56 earnie Exp $
+$Id: CHANGELOG.txt,v 1.1.4.289 2009/08/25 16:52:52 earnie Exp $
+
+XML sitemap 6.x-1, 2009-08-24
+-----------------------------------
+#558358 Failure to submit sitemaps.
+
+XML sitemap 6.x-1, 2009-08-24
+-----------------------------------
+#557926 Update INSTALL.txt for official release.
+
+XML sitemap 6.x-1, 2009-08-21
+-----------------------------------
+#550578 Update #6106: Update in {variable} table failed.
+#548064 Sitemap is submitted on every cron run with "update when new content"
+and no new content is added.
+#553930 Disable the UI for search engine URL.
+
+XML sitemap 6.x-1, 2009-08-19
+-----------------------------------
+#550702 by hass: Moreover: Submission URL is not updated with placeholder.
+
+XML sitemap 6.x-1, 2009-08-10
+-----------------------------------
+#544774 Slow queries - add index to loc column.
+
+XML sitemap 6.x-1, 2009-07-24
+-----------------------------------
+#535192 Override node settings permission is not checked properly in xmlsitemap_node_form_alter().
 
 XML sitemap 6.x-1, 2009-07-24
 -----------------------------------

@@ -1,5 +1,5 @@
 <?php
-// $Id: xmlsitemap_taxonomy.module,v 1.1.2.19 2009/07/16 12:56:04 earnie Exp $
+// $Id: xmlsitemap_taxonomy.module,v 1.1.2.20 2009/08/21 14:27:27 earnie Exp $
 
 /**
  * @file
@@ -24,14 +24,16 @@ function xmlsitemap_taxonomy_cron() {
       LEFT JOIN {xmlsitemap_taxonomy} xt ON xt.tid = t.tid
       WHERE xt.tid IS NULL";
     $result = db_query_range($sql, 0, $limit);
+    $sitemap_changed = FALSE;
     while ($term = db_fetch_object($result)) {
       $row = new stdClass();
       $row->tid = $term->tid;
       $row->vid = $term->vid;
       $row->changed = REQUEST_TIME;
       drupal_write_record('xmlsitemap_taxonomy', $row);
+      $sitemap_changed = TRUE;
     }
-    if ($result) {
+    if ($sitemap_changed) {
       xmlsitemap_flag_sitemap();
     }
   }

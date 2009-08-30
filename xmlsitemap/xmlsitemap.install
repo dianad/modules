@@ -1,5 +1,5 @@
 <?php
-// $Id: xmlsitemap.install,v 1.5.2.50 2009/07/16 13:35:22 earnie Exp $
+// $Id: xmlsitemap.install,v 1.5.2.51 2009/08/10 14:43:30 earnie Exp $
 
 
 /**
@@ -106,6 +106,7 @@ function xmlsitemap_schema() {
       'link_changed' => array('changed'),
       'link_priority' => array('priority'),
       'type_id' => array('type', 'id'),
+      'loc' => array('loc'),
     ),
     'primary key' => array('lid'),
   );
@@ -561,6 +562,16 @@ function xmlsitemap_update_6151() {
   $ret = array();
   db_add_index($ret, 'xmlsitemap', 'type_id', array('type', 'id'));
   return $ret;  
+}
+
+/**
+ * Implementation of hook_update_N().
+ * Add `loc` index.
+ */
+function xmlsitempa_update_6152() {
+  $ret = array();
+  db_add_index($ret, 'xmlsitemap', 'loc', array('loc'));
+  return $ret;
 }
 
 /**

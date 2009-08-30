@@ -1,17 +1,18 @@
-# $Id: xmlsitemap_engines.pot,v 1.1.2.10 2009/07/02 17:59:41 hass Exp $
+# $Id: xmlsitemap_engines.pot,v 1.1.2.11 2009/07/29 21:04:57 hass Exp $
 #
 # LANGUAGE translation of Drupal (xmlsitemap_engines)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
 #  xmlsitemap_engines.admin.inc,v 1.1.2.15 2009/06/17 14:52:41 earnie
-#  xmlsitemap_engines.module,v 1.5.2.48 2009/06/19 14:35:05 earnie
+#  xmlsitemap_engines.module,v 1.5.2.50 2009/07/24 17:59:27 earnie
+#  xmlsitemap_engines.install,v 1.3.2.23 2009/07/16 14:34:36 earnie
 #  xmlsitemap_engines.info,v 1.2.2.3 2009/05/05 21:53:44 earnie
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-07-02 19:50+0200\n"
+"POT-Creation-Date: 2009-07-29 23:02+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -56,7 +57,7 @@ msgstr ""
 msgid "Ask.com"
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:59 xmlsitemap_engines/xmlsitemap_engines.module:101
+#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:59 xmlsitemap_engines/xmlsitemap_engines.module:95
 msgid "Submit the sitemap to Ask.com"
 msgstr ""
 
@@ -72,7 +73,7 @@ msgstr ""
 msgid "Google"
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:77 xmlsitemap_engines/xmlsitemap_engines.module:111
+#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:77 xmlsitemap_engines/xmlsitemap_engines.module:105
 msgid "Submit the sitemap to Google"
 msgstr ""
 
@@ -92,7 +93,7 @@ msgstr ""
 msgid "Moreover.com"
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:101 xmlsitemap_engines/xmlsitemap_engines.module:116
+#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:101 xmlsitemap_engines/xmlsitemap_engines.module:110
 msgid "Submit the sitemap to Moreover.com"
 msgstr ""
 
@@ -100,7 +101,7 @@ msgstr ""
 msgid "Bing (formerly Live Search)"
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:119 xmlsitemap_engines/xmlsitemap_engines.module:106
+#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:119 xmlsitemap_engines/xmlsitemap_engines.module:100
 msgid "Submit the sitemap to Bing"
 msgstr ""
 
@@ -124,7 +125,7 @@ msgstr ""
 msgid "Yahoo!"
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:149 xmlsitemap_engines/xmlsitemap_engines.module:121
+#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:149 xmlsitemap_engines/xmlsitemap_engines.module:115
 msgid "Submit the sitemap to Yahoo!"
 msgstr ""
 
@@ -140,40 +141,44 @@ msgstr ""
 msgid "Yahoo! will ask you to put an authentication key in the verification file."
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.module:97
+#: xmlsitemap_engines/xmlsitemap_engines.module:91
 msgid "Submit the sitemap to all the active search engines"
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.module:200
+#: xmlsitemap_engines/xmlsitemap_engines.module:194
 msgid "Sitemap successfully submitted to !engine."
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.module:205
+#: xmlsitemap_engines/xmlsitemap_engines.module:199
 msgid "Error occurred submitting sitemap to !engine: !code."
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.module:50
+#: xmlsitemap_engines/xmlsitemap_engines.module:44
 msgid "Search engines"
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.module:51
+#: xmlsitemap_engines/xmlsitemap_engines.module:45
 msgid "Configure the submission settings of the XML sitemap to the search engines."
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.module:60
+#: xmlsitemap_engines/xmlsitemap_engines.module:54
 msgid "Google verification page"
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.module:70
+#: xmlsitemap_engines/xmlsitemap_engines.module:64
 msgid "Yahoo! verification page"
 msgstr ""
 
-#: xmlsitemap_engines/xmlsitemap_engines.module:80
+#: xmlsitemap_engines/xmlsitemap_engines.module:74
 msgid "Bing verification page"
 msgstr ""
 
 #: xmlsitemap_engines/xmlsitemap_engines.module:0
 msgid "xmlsitemap_engines"
+msgstr ""
+
+#: (duplicate) xmlsitemap_engines/xmlsitemap_engines.install:95 
+msgid "Variable \"xmlsitemap_engines_cron_timestamp_submit\" has been created."
 msgstr ""
 
 #: xmlsitemap_engines/xmlsitemap_engines.info:0

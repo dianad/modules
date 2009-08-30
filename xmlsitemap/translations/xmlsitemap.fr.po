@@ -1,4 +1,4 @@
-# $Id: xmlsitemap.fr.po,v 1.1.2.1 2009/07/08 13:09:30 slybud Exp $
+# $Id: xmlsitemap.fr.po,v 1.1.2.2 2009/07/29 21:16:03 hass Exp $
 #
 # French translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
@@ -22,12 +22,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: french translation for drupal6 xmlsitemap modules\n"
-"POT-Creation-Date: 2009-07-08 12:21+0200\n"
-"PO-Revision-Date: 2009-07-08 15:04+0100\n"
-"Last-Translator: Sylvain Moreau <sylvain.moreau@ows.fr>\n"
+"POT-Creation-Date: 2009-07-29 23:02+0200\n"
+"PO-Revision-Date: 2009-07-29 23:14+0100\n"
+"Last-Translator: Alexander Haß\n"
 "Language-Team: Sylvain Moreau, OWS <sylvain.moreau@ows.fr>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n>1);\n"
 "X-Poedit-Language: French\n"
@@ -80,31 +80,6 @@ msgstr "Fréquence de modification de la page d'accueil"
 msgid "The change frequency associated with the front page."
 msgstr "La fréquence de modification associée à la page d'accueil."
 
-#: xmlsitemap.admin.inc:67
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:46
-msgid "Hourly"
-msgstr "Toutes les Heures"
-
-#: xmlsitemap.admin.inc:68
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:45
-msgid "Daily"
-msgstr "Quotidiennement"
-
-#: xmlsitemap.admin.inc:69
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:44
-msgid "Weekly"
-msgstr "Toutes les semaines"
-
-#: xmlsitemap.admin.inc:70
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:42
-msgid "Monthly"
-msgstr "Mensuellement"
-
-#: xmlsitemap.admin.inc:71
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:40
-msgid "Yearly"
-msgstr "Annuellement"
-
 #: xmlsitemap.admin.inc:76
 msgid "Front page priority"
 msgstr "Priorité de la page d'acceuil"
@@ -120,13 +95,6 @@ msgstr "Opérations"
 #: xmlsitemap.admin.inc:128
 msgid "Apply"
 msgstr "Appliquer"
-
-#: (duplicate) xmlsitemap.pages.inc:49;52;245;270;281
-#: xmlsitemap.module:0
-#: xmlsitemap.install:566
-#: ;547;564 xmlsitemap_engines/xmlsitemap_engines.module:200;205
-msgid "xmlsitemap"
-msgstr "xmlsitemap"
 
 #: xmlsitemap.pages.inc:49
 msgid "Chunk size has been updated to @chunk-size."
@@ -338,336 +306,25 @@ msgstr "Index itemap"
 msgid "Sitemap !number"
 msgstr "Sitemap !number"
 
-#: xmlsitemap.install:506
+#: xmlsitemap.install:507
 msgid "XML sitemap term has been deprecated in favor of XML sitemap taxonomy; enable it in the <a href=\"@modules\">modules page</a>."
 msgstr "XML sitemap term a été déprecié en faveur de XML sitemap taxonomy; activez-le dans la <a href=\"@modules\">page des modules</a>."
 
-#: (duplicate) xmlsitemap.install:550
-#: ;547
+#: (duplicate) xmlsitemap.install:551
+#: ;548
 msgid "You have not correctly followed the installation instructions for this module. You must make certain that the old xmlsitemap/xmlsitemap diretory is removed. The xmlsitemap/xmlsitemap/xmlsitemap.* files have been moved back to the modules root directory. The install instructions were to remove the modules/xmlsitemap directory completely before extracting the update. If you had followed that step you would have prevented this message."
 msgstr ""
 
-#: (duplicate) xmlsitemap.install:567
+#: (duplicate) xmlsitemap.install:577
 msgid "Installation issue"
 msgstr "Problème d'installation"
 
-#: (duplicate) xmlsitemap.install:568
-#: ;564
+#: (duplicate) xmlsitemap.install:578
+#: ;574
 msgid "You have not correctly followed the installation instructions for this module. You must make certain that the old xmlsitemap/xmlsitemap diretory is removed. The xmlsitemap/xmlsitemap/xmlsitemap.* files have been moved back to the modules root directory. The install instructions were to removed the modules/xmlsitemap directory completely before extracting the update. If you had followed that step you would have prevented this message."
 msgstr ""
 
 #: xmlsitemap.info:0
 msgid "Create a XML sitemap conforming to sitemaps.org specifications."
 msgstr "Créer un sitemap XML conforme aux spécifications sitemaps.org."
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:25
-msgid "Submission settings"
-msgstr "Paramètres de soumission"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:30
-msgid "Submit the sitemap when content changes"
-msgstr "Soumettre le sitemap lorsque le contenu change"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:31
-msgid "If enabled, the search engines will be notified of changes to the sitemap each time the sitemap content is changed."
-msgstr "Si activé, les moteurts de recherche seront prévenus des modifications du sitemap à chaque fois que le sitemap est modifié."
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:36
-msgid "Frequency of sitemap submission"
-msgstr "Fréquence de soumission du sitemap"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:37
-msgid "The rate at which the sitemap is submitted to the search engines."
-msgstr "La fréquence à laquelle le sitemap est soumis aux moteurs de recherche."
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:41
-msgid "Every 6 months"
-msgstr "Tous les 6 mois"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:43
-msgid "Every 15 days"
-msgstr "Tous les 15 jours"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:47
-msgid "Never"
-msgstr "Jamais"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:53
-msgid "Ask.com"
-msgstr "Ask.com"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:59
-#: xmlsitemap_engines/xmlsitemap_engines.module:101
-msgid "Submit the sitemap to Ask.com"
-msgstr "Soumettre le sitemap à Ask.com"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:64;82;106;124;154
-msgid "Submission URL"
-msgstr "URL de soumission"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:65
-msgid "The URL to submit the sitemap to. Use %placeholder as placeholder for the sitemap URL."
-msgstr "L'URL à laquelle soumettre le sitemap. Utilisez %placeholder comme paramètre de substitution pour l'URL du sitemap."
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:71
-msgid "Google"
-msgstr "Google"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:77
-#: xmlsitemap_engines/xmlsitemap_engines.module:111
-msgid "Submit the sitemap to Google"
-msgstr "Soumettre le sitemap à Google"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:83;107;125;155
-msgid "The URL to submit the sitemap to. Use %placeholder like placeholder for the sitemap URL."
-msgstr "L'URL à laquelle soumettre le sitemap. Utilisez %placeholder en tant que paramètre de substitution pour l'URL du sitemap."
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:88;160
-msgid "Verification link"
-msgstr "Lien de vérification"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:89
-msgid "In order to show statistics, Google will ask you to verify that you control this site by creating a file with a certain name. Enter that name here and the XML sitemap module will create a path to that file name. This will only work if you have clean URLs enabled."
-msgstr "Afin d'afficher des statistiques, Google vous demandera de vérifier que vous contrôlez ce site en créant un fichier avec un nom particulier. Saisissez ce nom ici, et XML sitemap crééra un chemin vers ce nom de fichier. Ceci fonctionnera uniquement si vous avez activé les URL propres (<em>Clean URLs</em>)."
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:95
-msgid "Moreover.com"
-msgstr "Moreover.com"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:101
-#: xmlsitemap_engines/xmlsitemap_engines.module:116
-msgid "Submit the sitemap to Moreover.com"
-msgstr "Soumettre le sitemap à Moreover.com"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:113
-msgid "Bing (formerly Live Search)"
-msgstr "Bing (anciennement Live Search)"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:119
-#: xmlsitemap_engines/xmlsitemap_engines.module:106
-msgid "Submit the sitemap to Bing"
-msgstr "Soumettre le sitemap à Bing"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:130
-msgid "Authentication file"
-msgstr "Fichier d'authentification"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:131
-msgid "Before allowing you to view additional information, Bing will ask you to verify that you control this site by creating a file with a certain name. Enter that name here, and XML sitemap will create a path to that file name. This will only work if you have clean URLs enabled."
-msgstr "Avant de vous autoriser à voir des informations supplémentaires, Bing vous demandera de vérifier que vous contrôlez ce site en créant un fichier avec un nom particulier. Saisissez ce nom ici, et XML sitemap crééra un chemin vers ce nom de fichier. Ceci fonctionnera uniquement si vous avez activé les URL propres (<em>Clean URLs</em>)."
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:136
-msgid "Bing authentication tag"
-msgstr "Etiquette d'authentification Bing"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:137
-msgid "Bing will give you an authentication tag."
-msgstr "Bing vous fournira une étiquette d'authentification."
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:143
-msgid "Yahoo!"
-msgstr "Yahoo!"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:149
-#: xmlsitemap_engines/xmlsitemap_engines.module:121
-msgid "Submit the sitemap to Yahoo!"
-msgstr "Soumettre le sitemap à Yahoo!"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:161
-msgid "Before allowing you to view additional information, Yahoo! will ask you to verify that you control this site by creating a file with a certain name. Enter that name here, and XML sitemap will create a path to that file name. This will only work if you have clean URLs enabled."
-msgstr "Avant de vous autoriser à voir des informations supplémentaires, Yahoo! vous demandera de vérifier que vous contrôlez ce site en créant un fichier avec un nom particulier. Saisissez ce nom ici, et XML sitemap crééra un chemin vers ce nom de fichier. Ceci fonctionnera uniquement si vous avez activé les URL propres (<em>Clean URLs</em>)."
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:166
-msgid "Authentication key"
-msgstr "Clé d'authentification"
-
-#: xmlsitemap_engines/xmlsitemap_engines.admin.inc:167
-msgid "Yahoo! will ask you to put an authentication key in the verification file."
-msgstr "Yahoo! vous demandera de mettre une clé d'authentification dans le fichier de vérification."
-
-#: xmlsitemap_engines/xmlsitemap_engines.module:97
-msgid "Submit the sitemap to all the active search engines"
-msgstr "Soumettre le sitemap à tous les moteurs de recherche actifs"
-
-#: xmlsitemap_engines/xmlsitemap_engines.module:200
-msgid "Sitemap successfully submitted to !engine."
-msgstr "Le Sitemap a été soumis avec succès au moteur !engine."
-
-#: xmlsitemap_engines/xmlsitemap_engines.module:205
-msgid "Error occurred submitting sitemap to !engine: !code."
-msgstr "Une erreur est survenue lors de la soumission du sitemap à !engine: !code."
-
-#: xmlsitemap_engines/xmlsitemap_engines.module:50
-msgid "Search engines"
-msgstr "Moteurs de recherche"
-
-#: xmlsitemap_engines/xmlsitemap_engines.module:51
-msgid "Configure the submission settings of the XML sitemap to the search engines."
-msgstr "Configurer les paramètres de soumission du sitemap XML aux moteurs de recherche."
-
-#: xmlsitemap_engines/xmlsitemap_engines.module:60
-msgid "Google verification page"
-msgstr "Page de vérification de Google"
-
-#: xmlsitemap_engines/xmlsitemap_engines.module:70
-msgid "Yahoo! verification page"
-msgstr "Page de vérification de Yahoo!"
-
-#: xmlsitemap_engines/xmlsitemap_engines.module:80
-msgid "Bing verification page"
-msgstr "Page de vérification Bing"
-
-#: xmlsitemap_engines/xmlsitemap_engines.module:0
-msgid "xmlsitemap_engines"
-msgstr "xmlsitemap_engines"
-
-#: xmlsitemap_engines/xmlsitemap_engines.info:0
-msgid "XML sitemap engines"
-msgstr "XML sitemap engines"
-
-#: xmlsitemap_engines/xmlsitemap_engines.info:0
-msgid "Submit the sitemap to search engines."
-msgstr "Soumettre le sitemap aux moteurs de recherche."
-
-#: xmlsitemap_node/xmlsitemap_node.module:117
-#: xmlsitemap_taxonomy/xmlsitemap_taxonomy.module:62;82
-msgid "Priority"
-msgstr "Priorité"
-
-#: xmlsitemap_node/xmlsitemap_node.module:118
-#: xmlsitemap_taxonomy/xmlsitemap_taxonomy.module:63
-#: xmlsitemap_user/xmlsitemap_user.module:131
-msgid "The default priority is %priority."
-msgstr "La priorité par défaut est %priority."
-
-#: xmlsitemap_node/xmlsitemap_node.module:141
-msgid "Priority adjustment"
-msgstr "Ajustement de priorité"
-
-#: xmlsitemap_node/xmlsitemap_node.module:142
-msgid "This number will be added to the priority of this content type."
-msgstr "Ce nombre sera ajouté à la priorité de ce type de contenu."
-
-#: xmlsitemap_node/xmlsitemap_node.module:157
-msgid "Node settings"
-msgstr "Paramètres des noeuds"
-
-#: xmlsitemap_node/xmlsitemap_node.module:158
-msgid "The settings for the nodes to include in the sitemap."
-msgstr "Les paramètres des noeuds à inclure dans le sitemap."
-
-#: xmlsitemap_node/xmlsitemap_node.module:164
-msgid "Promotion priority adjustment"
-msgstr "Ajustement de priorité de promotion"
-
-#: xmlsitemap_node/xmlsitemap_node.module:165
-msgid "This number will be added to the priority of each post that is promoted to the front page. This setting doesn't apply for the nodes for which the priority is overriden."
-msgstr "Ce nombre sera ajouté à la priorité de chaque contenu promu en page d'accueil. Ce paramètre ne s'applique pas aux noeuds dont la priorité est remplacée."
-
-#: xmlsitemap_node/xmlsitemap_node.module:171
-msgid "Comment ratio priority adjustment"
-msgstr "Ajustement de priorité de ratio de commentaire"
-
-#: xmlsitemap_node/xmlsitemap_node.module:172
-msgid "This number will be added to the priority of the post with the highest number of comments; for the other posts, the number is calculated proportionally to the number of comments. This doesn't apply if the maximum number of comments is one, nor for the nodes for which the priority is overriden."
-msgstr "Ce nombre sera ajouté à la priorité du contenu avec le plus grand nombre de commentaires; pour les autres contenus, le nombre est calculé proportionnellement au nombre de commentaires. Ce paramètre ne s'applique pas si le nombre maximal de commentaites est un, ni aux noeuds dont la priorité est remplacée."
-
-#: xmlsitemap_node/xmlsitemap_node.module:184
-msgid "Add the selected posts to the XML sitemap"
-msgstr "Ajouter les contenus sélectionnés au sitemap XML"
-
-#: xmlsitemap_node/xmlsitemap_node.module:189
-msgid "Change the XML sitemap priority of the selected posts to default"
-msgstr "Modifier la priorité XML sitemap des contenus sélectionnés à la valeur par défaut"
-
-#: xmlsitemap_node/xmlsitemap_node.module:194
-msgid "Remove the selected posts from the XML sitemap"
-msgstr "Supprimer les contenus sélectionnés du sitemap XML"
-
-#: xmlsitemap_node/xmlsitemap_node.module:272
-#: xmlsitemap_node/xmlsitemap_node.info:0
-msgid "XML sitemap node"
-msgstr "XML sitemap node"
-
-#: xmlsitemap_node/xmlsitemap_node.module:273
-msgid "<em>XML sitemap node</em> adds nodes (content) to the sitemap. The default priority of a node is determined by a combination of its <a href=\"@content\">content type</a> priority, whether it appears on the front page of your site, and the number of comments it has received. You can override the default priority for individual nodes when you add or edit a node."
-msgstr "<em>XML sitemap node</em> ajoute des noeuds (contenu) au sitemap. La priorité par défaut d'un noeud est déterminée par une combinaison de sa priorité de <a href=\"@content\">type de contenu</a>, si il apparapit ou non sur la page d'accueil de votre site, et le nombre de commentaires qu'il a reçu. Vous pouvez remplacer la priorité par défaut pour un noeud donné lorsque vous ajoutez ou éditez un noeud."
-
-#: xmlsitemap_node/xmlsitemap_node.module:428
-msgid "Processing"
-msgstr "Exécution"
-
-#: xmlsitemap_node/xmlsitemap_node.module:430
-msgid "The update has encountered an error."
-msgstr "La mise à jour a échoué."
-
-#: xmlsitemap_node/xmlsitemap_node.module:0
-msgid "xmlsitemap_node"
-msgstr "xmlsitemap_node"
-
-#: xmlsitemap_node/xmlsitemap_node.info:0
-msgid "Add node links to the sitemap."
-msgstr "Ajouter les liens de noeud au sitemap."
-
-#: xmlsitemap_taxonomy/xmlsitemap_taxonomy.module:83
-msgid "This will be the default priority of terms in this vocabulary."
-msgstr "Ce sera la priorité par défaut des termes de ce vocabulaire."
-
-#: xmlsitemap_taxonomy/xmlsitemap_taxonomy.module:190
-#: xmlsitemap_taxonomy/xmlsitemap_taxonomy.info:0
-msgid "XML sitemap taxonomy"
-msgstr "XML sitemap taxonomy"
-
-#: xmlsitemap_taxonomy/xmlsitemap_taxonomy.module:191
-msgid "The module adds <a href=\"@terms\">taxonomy terms</a> (categories) to the sitemap. The term default priority may be changed while adding or editing vocabularies and the term default priority can be overridden while adding or editing terms."
-msgstr "Le modue ajoute les <a href=\"@terms\">termes de taxonomie</a> au sitemap. La priorité par défaut de terme peut être modifiée lors de l'ajour ou de l'édition des vocabulaires, et la priorité par défaut de terme peut être remplacée lors de l'ajout ou de l'édition de termes."
-
-#: xmlsitemap_taxonomy/xmlsitemap_taxonomy.module:0
-msgid "xmlsitemap_taxonomy"
-msgstr "xmlsitemap_taxonomy"
-
-#: xmlsitemap_taxonomy/xmlsitemap_taxonomy.info:0
-msgid "Add taxonomy term links to the sitemap."
-msgstr "Ajouter les liens de termes de taxonomie au sitemap."
-
-#: xmlsitemap_user/xmlsitemap_user.module:56
-msgid "Default user priority"
-msgstr "Priorité utilisateur par défaut"
-
-#: xmlsitemap_user/xmlsitemap_user.module:57
-msgid "The default priority for users who have only the authenticated user role."
-msgstr "La priorité par défaut pour les utilisateurs qui possèdent le rôle utilisateur authentifié."
-
-#: xmlsitemap_user/xmlsitemap_user.module:86
-msgid "Default priority"
-msgstr "Priorité par défaut"
-
-#: xmlsitemap_user/xmlsitemap_user.module:87
-msgid "The priority of all user roles will be added together to set the user's default priority. If all role priorities are left at default, the user's default priority will be %priority."
-msgstr "Les priorités de tous les rôles utilisateurs seront ajoutées pour définir la priorité par défaut de l'utilisateur. Si toutes les priorités de rôle sont laissées à la valeur par défaut, la priorité par défaut de l'utilisateur sera %priority."
-
-#: xmlsitemap_user/xmlsitemap_user.module:130
-msgid "User priority"
-msgstr "Priorité utilisateur"
-
-#: xmlsitemap_user/xmlsitemap_user.module:187
-#: xmlsitemap_user/xmlsitemap_user.info:0
-msgid "XML sitemap user"
-msgstr "XML sitemap user"
-
-#: xmlsitemap_user/xmlsitemap_user.module:188
-msgid "The module adds user profiles to the sitemap. The <em>anonymous user</em> role must have permission to access user profiles on the <a href=\"@access\">access control page</a>. You can change the default user priority on the <a href=\"@user_settings\">user settings</a> page. The <a href=\"@user\">user role priority</a> will override the default user priority. You can override both the default priority and the role priority if you add or edit a user."
-msgstr "Le module ajoute les profils utilisateur au sitemap. Le role <em>utilisateur anonyme</em> doit posséder les permissions d'accès aux profils utilisateur sur la <a href=\"@access\">page de contrôle d'accès</a>. Vous pouvez modifier la priorité par défaut d'utilisateur sur la page des <a href=\"@user_settings\">paramètres utilisateur</a>. La <a href=\"@user\">priorité du rôle utilisateur</a> remplacera la priorité utilisateur par défaut.  Vous pouvez remplacer à la fois la priorité par défaut et la priorité de rôle lors de l'ajout ou de l'édition d'un utilisateur."
-
-#: xmlsitemap_user/xmlsitemap_user.module:0
-msgid "xmlsitemap_user"
-msgstr "xmlsitemap_user"
-
-#: xmlsitemap_user/xmlsitemap_user.install:265;273;293
-msgid "The priority assigned to the role."
-msgstr "La priorité assignée au rôle."
-
-#: xmlsitemap_user/xmlsitemap_user.info:0
-msgid "Add user profile links to the sitemap."
-msgstr "Ajouter les liens des profils utilisateurs au sitemap."
 
