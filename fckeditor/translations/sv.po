@@ -1,4 +1,4 @@
-# $Id: sv.po,v 1.1.2.2 2008/07/25 22:22:32 seals Exp $
+# $Id: sv.po,v 1.1.2.3 2009/09/02 06:34:46 jorrit Exp $
 #
 # Swedish translation of Drupal (fckeditor)
 # Copyright 2008 Magnus Gunnarsson (seals@passagen.se)
@@ -340,8 +340,8 @@ msgid "Open rich editor"
 msgstr "Öppna redigerare av typen Rich Text"
 
 #: fckeditor.module:904
-msgid "<div class=\"textarea-identifier description\">The ID for !excluding this element is: !id - the path is: !path</div>"
-msgstr "<div class=\"textarea-identifier description\">ID för att !excluding det här elementet är: !id - sökvägen är: !path</div>"
+msgid "<div class=\"textarea-identifier description\">The ID for !excluding this element is: @id - the path is: @path</div>"
+msgstr "<div class=\"textarea-identifier description\">ID för att !excluding det här elementet är: @id - sökvägen är: @path</div>"
 
 #: fckeditor.module:905
 msgid "excluding or including"

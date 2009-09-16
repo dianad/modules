@@ -1,5 +1,5 @@
 <?php
-// $Id: fckeditor.install,v 1.2.2.25 2009/02/16 11:58:52 wwalc Exp $
+// $Id: fckeditor.install,v 1.2.2.26 2009/08/05 20:04:09 jorrit Exp $
 
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
@@ -22,7 +22,7 @@
  * == END LICENSE ==
  *
  * @file
- * Implementation of hook_install()
+ * Implementation of hook_install().
  *
  * This will automatically install the database tables for the FCKeditor module for both the MySQL and PostgreSQL databases.
  *
@@ -151,8 +151,8 @@ function fckeditor_install() {
 }
 
 /**
-* Implementation of hook_schema().
-*/
+ * Implementation of hook_schema().
+ */
 function fckeditor_schema() {
   $schema['fckeditor_settings'] = array(
     'description' => 'Stores FCKeditor profile settings',
@@ -302,7 +302,7 @@ function fckeditor_update_6130() {
 }
 
 /**
- * Implementation of hook_uninstall()
+ * Implementation of hook_uninstall().
  */
 function fckeditor_uninstall() {
   drupal_uninstall_schema('fckeditor');

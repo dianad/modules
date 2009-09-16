@@ -1,9 +1,10 @@
-// $Id: fckeditor.utils.js,v 1.2.2.32 2009/03/11 11:53:52 wwalc Exp $
+// $Id: fckeditor.utils.js,v 1.2.2.34 2009/09/09 18:54:40 jorrit Exp $
 var fckIsRunning = new Array;
 var fckIsLaunching = new Array;
 var fckLaunchedTextareaId = new Array;
 var fckLaunchedJsId = new Array;
 var fckFirstrun = new Array;
+var fckActiveId = false;
 var fckIsIE = ( /*@cc_on!@*/false ) ? true : false ;
 
 function Toggle(js_id, textareaID, textTextarea, TextRTE, xss_check)
@@ -68,7 +69,7 @@ function Toggle(js_id, textareaID, textTextarea, TextRTE, xss_check)
     eFCKeditorDiv.style.display = '';
 
     text = eTextarea.value;
-    if (teaser && $('input[@class=teaser-button]').attr('value') == Drupal.t('Join summary')) {
+    if (teaser && $('input.teaser-button').attr('value') == Drupal.t('Join summary')) {
       var val = $('#' + teaser).val();
       if (val && val.length) {
         text = val + '<!--break-->' + text;
@@ -90,7 +91,7 @@ function Toggle(js_id, textareaID, textTextarea, TextRTE, xss_check)
     $(".img_assist-button").hide();
 
     if (teaser) {
-      $('div[@class=teaser-button-wrapper]').hide();
+      $('div.teaser-button-wrapper').hide();
       $('#' + teaser).parent().hide();
       $('#' + teaserCheckbox).parent().show();
     }
@@ -117,14 +118,14 @@ function Toggle(js_id, textareaID, textTextarea, TextRTE, xss_check)
         $('#' + textareaID).val(text.slice(t+12));
         $('#' + teaser).parent().show();
         $('#' + teaser).attr('disabled', '');
-        if ($('input[@class=teaser-button]').attr('value') != Drupal.t('Join summary')) {
-          try {$('input[@class=teaser-button]').click();} catch(e) {$('input[@class=teaser-button]').val(Drupal.t('Join summary'));}
+        if ($('input.teaser-button').attr('value') != Drupal.t('Join summary')) {
+          try {$('input.teaser-button').click();} catch(e) {$('input.teaser-button.').val(Drupal.t('Join summary'));}
         }
       }
       else {
         $('#' + teaser).attr('disabled', 'disabled');
-        if ($('input[@class=teaser-button]').attr('value') != Drupal.t('Split summary at cursor')) {
-          try {$('input[@class=teaser-button]').click();} catch(e) {$('input[@class=teaser-button]').val(Drupal.t('Split summary at cursor'));}
+        if ($('input.teaser-button').attr('value') != Drupal.t('Split summary at cursor')) {
+          try {$('input.teaser-button').click();} catch(e) {$('input.teaser-button').val(Drupal.t('Split summary at cursor'));}
         }
         // Set the textarea value to the editor value.
         $('#' + textareaID).val(text);
@@ -141,7 +142,7 @@ function Toggle(js_id, textareaID, textTextarea, TextRTE, xss_check)
     eTextarea.style.display = '';
     eFCKeditorDiv.style.display = 'none';
     if (teaser) {
-      $('div[@class=teaser-button-wrapper]').show();
+      $('div.teaser-button-wrapper').show();
     }
   }
 }
@@ -201,8 +202,8 @@ function DoFCKeditorTeaserStuff()
             $('#' + teaser).val('');
             $('#' + teaser).attr('disabled', 'disabled');
             document.getElementById( fckLaunchedTextareaId[i] ).value = text;
-            if ($('input[@class=teaser-button]').attr('value') == Drupal.t('Join summary')) {
-              try {$('input[@class=teaser-button]').click();} catch(e) {$('input[@class=teaser-button]').val(Drupal.t('Join summary'));}
+            if ($('input.teaser-button').attr('value') == Drupal.t('Join summary')) {
+              try {$('input.teaser-button').click();} catch(e) {$('input.teaser-button').val(Drupal.t('Join summary'));}
             }
           }
         }
@@ -212,6 +213,13 @@ function DoFCKeditorTeaserStuff()
       }
     }
 }
+
+// Update a global variable containing the active FCKeditor ID.
+function DoFCKeditorUpdateId( editorInstance )
+{
+  fckActiveId = editorInstance.Name;
+}
+
 // The FCKeditor_OnComplete function is a special function called everytime an
 // editor instance is completely loaded and available for API interactions.
 function FCKeditor_OnComplete( editorInstance )
@@ -230,7 +238,8 @@ function FCKeditor_OnComplete( editorInstance )
   // If the textarea isn't visible update the content from the editor.
   $(editorInstance.LinkedField.form).submit(DoFCKeditorTeaserStuff);
 
-  editorInstance.Events.AttachEvent( 'OnAfterLinkedFieldUpdate', DoFCKeditorTeaserStuff ) ;
+  editorInstance.Events.AttachEvent( 'OnAfterLinkedFieldUpdate', DoFCKeditorTeaserStuff );
+  editorInstance.Events.AttachEvent( 'OnFocus', DoFCKeditorUpdateId );
 
   var teaser = false;
   var teaserCheckbox = false;
@@ -244,7 +253,7 @@ function FCKeditor_OnComplete( editorInstance )
 
   if (teaser) {
     $('#' + teaser).attr('disabled', '');
-    $('div[@class=teaser-button-wrapper]').hide();
+    $('div.teaser-button-wrapper').hide();
     $('#' + teaser).parent().hide();
     $('#' + teaserCheckbox).parent().show();
   }

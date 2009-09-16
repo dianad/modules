@@ -330,8 +330,8 @@ msgid "Open rich editor"
 msgstr "Avaa tekstinkäsittelyeditori"
 
 #: fckeditor.module:905
-msgid "<div class=\"textarea-identifier description\">The ID for !excluding this element is: !id - the path is: !path</div>"
-msgstr "<div class=\"textarea-identifier description\">Tämän elementin ID !excluding varten on: !id - ja polku on: !path</div>"
+msgid "<div class=\"textarea-identifier description\">The ID for !excluding this element is: @id - the path is: @path</div>"
+msgstr "<div class=\"textarea-identifier description\">Tämän elementin ID !excluding varten on: @id - ja polku on: @path</div>"
 
 #: fckeditor.module:906
 msgid "excluding or including"

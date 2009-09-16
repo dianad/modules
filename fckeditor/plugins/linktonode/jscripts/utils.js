@@ -57,10 +57,8 @@ function Ok()
 	{
 		oLink = aLinks[i] ;
 
-		/*
 		if ( aHasSelection )
 			sInnerHtml = oLink.innerHTML ;		// Save the innerHTML (IE changes it if it is like an URL).
-		*/
 
 		oLink.href = sUri ;
 		SetAttribute( oLink, '_fcksavedurl', sUri ) ;
