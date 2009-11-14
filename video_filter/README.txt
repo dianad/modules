@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.2.2.4 2009/07/31 22:17:00 blackdog Exp $
+$Id: README.txt,v 1.2.2.5 2009/10/22 19:40:44 blackdog Exp $
 
 This is a highly flexible and easy extendable filter module to embed any type of video in your site using a simple tag. Other modules can add video sites/formats (called codecs) using an easy plug-in architecture.
 
@@ -7,6 +7,8 @@ This is a highly flexible and easy extendable filter module to embed any type of
 Enable the module on the modules page.
 
 Go to admin/settings/filters and configure the input format(s) that should be allowed to use this filter. Check the box to enable Video Filter and save. Some simple settings are available if you configure the input format. There you can change the default size and auto play settings.
+
+To enable WYSIWYG support, go to the WYSIWYG settings for each input format and enable the Video Filter button.
 
 ========= Usage =========
 

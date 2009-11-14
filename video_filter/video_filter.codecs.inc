@@ -1,101 +1,123 @@
 <?php
-// $Id: video_filter.codecs.inc,v 1.3.2.14 2009/08/16 11:07:13 blackdog Exp $
+// $Id: video_filter.codecs.inc,v 1.3.2.18 2009/10/22 20:45:29 blackdog Exp $
 
 function video_filter_codec_info() {
   $codecs = array();
 
   $codecs['youtube'] = array(
     'name' => t('YouTube'),
+    'sample_url' => 'http://www.youtube.com/watch?v=uN1qUeId',
     'callback' => 'video_filter_youtube',
     'regexp' => '/youtube\.com\/watch\?v=([a-z0-9\-_]+)/i',
     'ratio' => 425 / 355,
   );
   $codecs['google'] = array(
     'name' => t('Google Video'),
+    'sample_url' => 'http://video.google.com/videoplay?docid=-uN1qUeId',
     'callback' => 'video_filter_google',
     'regexp' => '/video\.google\.[a-z]+\/videoplay\?docid=(\-?[0-9]+)/',
     'ratio' => 400 / 326,
   );
   $codecs['tangle'] = array(
     'name' => t('Tangle'),
+    'sample_url' => 'http://www.tangle.com/view_video?viewkey=b2e45d2a30cb0f5cad38',
     'callback' => 'video_filter_tangle',
-    'regexp' => '/tangle\.com\/view_video\.php\?viewkey=([a-z0-9]+)/',
+    'regexp' => array(
+                  '/tangle\.com\/view_video\.php\?viewkey=([a-z0-9]+)/',
+                  '/tangle\.com\/view_video\?viewkey=([a-z0-9]+)/',
+                ),
     'ratio' => 330 / 270,
   );
   $codecs['dailymotion'] = array(
     'name' => t('DailyMotion'),
+    'sample_url' => 'http://www.dailymotion.com/xxxxx_some_title',
     'callback' => 'video_filter_dailymotion',
     'regexp' => '/dailymotion\.com\/.*video\/([a-z0-9]+)/i',
     'ratio' => 420 / 336,
   );
   $codecs['eyespot'] = array(
     'name' => t('Eyespot'),
+    'sample_url' => 'http://eyespot.com/share?cmd=permalink&r=0XCzIG2UEx9hoXiEJW07IWpUtT',
     'callback' => 'video_filter_eyespot',
     'regexp' => '/eyespot\.com\/.*r=([a-z0-9]+)/i',
     'ratio' => 432 / 407,
   );
   $codecs['revver'] = array(
     'name' => t('Revver'),
+    'sample_url' => 'http://revver.com/video/123456/the-title/',
     'callback' => 'video_filter_revver',
     'regexp' => '/revver\.com\/video\/([0-9]+)/',
     'ratio' => 408 / 324,
   );
   $codecs['vimeo'] = array(
     'name' => t('Vimeo'),
+    'sample_url' => 'http://www.vimeo.com/123456',
     'callback' => 'video_filter_vimeo',
     'regexp' => '/vimeo\.com\/([0-9]+)/',
     'ratio' => 400 / 225,
   );
   $codecs['flickr_slideshows'] = array(
     'name' => t('Flickr Slideshows'),
+    'sample_url' => 'http://www.flickr.com/photos/username/sets/1234567890/show/',
     'callback' => 'video_filter_flickr_slideshows',
     'regexp' => '/flickr\.com\/photos\/([a-zA-Z0-9@_\-]+)\/sets\/([0-9]+)\/?[show]?\/?/i',
     'ratio' => 400 / 300,
   );
   $codecs['flickr_video'] = array(
     'name' => t('Flickr Video'),
+    'sample_url' => 'http://www.flickr.com/photos/hansnilsson/1234567890/',
     'callback' => 'video_filter_flickr_video',
     'regexp' => '/flickr\.com\/photos\/([a-zA-Z0-9@_\-]+)\/([0-9]+)/',
     'ratio' => 400 / 226,
   );
   $codecs['gamevideos'] = array(
     'name' => t('Game Videos'),
+    'sample_url' => 'http://gamevideos.1up.com/video/id/12345',
     'callback' => 'video_filter_gamevideos',
     'regexp' => '/gamevideos\.1up\.com\/video\/id\/([0-9]+)/',
     'ratio' => 500 / 319,
   );
   $codecs['metacafe'] = array(
     'name' => t('Meta Cafe'),
+    'sample_url' => 'http://www.metacafe.com/watch/1234567890/some_title/',
     'callback' => 'video_filter_metacafe',
     'regexp' => '/metacafe\.com\/watch\/([a-z0-9\-_]+)\/([a-z0-9\-_]+)/i',
     'ratio' => 400 / 345,
   );
   $codecs['gametrailers'] = array(
     'name' => t('Game Trailers'),
+    'sample_url' => 'http://www.gametrailers.com/video/some-title/12345',
     'callback' => 'video_filter_gametrailers',
-    'regexp' => '/gametrailers\.com\/player\/([0-9]+)/',
+    'regexp' => array(
+      '/gametrailers\.com\/player\/([0-9]+)/',
+      '/gametrailers\.com\/video\/([a-z0-9\-_]+)\/([0-9]+)/',
+    ),
     'ratio' => 480 / 392,
   );
   $codecs['collegehumor'] = array(
     'name' => t('College Humor'),
+    'sample_url' => 'http://www.collegehumor.com/video:1234567890',
     'callback' => 'video_filter_collegehumor',
     'regexp' => '/collegehumor\.com\/video\:([0-9]+)/',
     'ratio' => 480 / 360,
   );
   $codecs['myspace'] = array(
     'name' => t('MySpace'),
+    'sample_url' => 'http://vids.myspace.com/index.cfm?fuseaction=vids.individual&VideoID=1234567890',
     'callback' => 'video_filter_myspace',
     'regexp' => '/vids\.myspace\.com\/.*VideoID=([0-9]+)/i',
     'ratio' => 425 / 360,
   );
   $codecs['capped'] = array(
     'name' => t('Capped'),
+    'sample_url' => 'http://capped.tv/playeralt.php?vid=some-title',
     'callback' => 'video_filter_capped',
     'regexp' => '/capped\.tv\/([a-zA-Z0-9\-_]+)/',
     'ratio' => 425 / 355,
   );
   $codecs['bliptv'] = array(
     'name' => t('Blip.tv'),
+    'sample_url' => 'http://blip.tv/file/123456',
     'callback' => 'video_filter_bliptv',
     'regexp' => array(
                   '@blip\.tv/rss/flash/([^"\&\?/]+)@i',
@@ -107,10 +129,26 @@ function video_filter_codec_info() {
   );
   $codecs['slideshare'] = array(
     'name' => t('Slideshare'),
+    'sample_url' => 'http://slideshare.net/?id=1759622&amp;doc=usingdrupal-090723103440-phpapp01',
     'callback' => 'video_filter_slideshare',
     'instructions' => t('You need to construct your own URL, using the "Wordpress Embed" code from Slideshare, extract the "id" and "doc" parts, and form the URL like this: slideshare.net/?id=1759622&amp;doc=usingdrupal-090723103440-phpapp01.'),
     'regexp' => '/slideshare\.net\/\?id=([a-z0-9]+).*doc=([a-z0-9-]+)/',
     'ratio' => 500 / 410,
+  );
+  $codecs['picasa_slideshows'] = array(
+    'name' => t('Picasa Slideshows'),
+    'sample_url' => 'http://picasaweb.google.com/data/feed/base/user/USER_NAME/albumid/5568104935784209834?alt=rss&kind=photo&hl=en_US',
+    'callback' => 'video_filter_picasa_slideshows',
+    'instructions' => t('You must use the URL of the RSS feed for the Picasa album:') .
+                      '<ol>' .
+                      '<li>' . t('View the album in Picasa (you should see thumbnails, not a slideshow).') . '</li>' .
+                      '<li>' . t('Find the "RSS" link and click it.') . '</li>' .
+                      '<li>' . t('Copy the resulting URL from the browser address bar.  Example: ') . '<br />' .
+                      '<code>[video: http://picasaweb.google.com/data/feed/base/user/USER_NAME/albumid/5568104935784209834?alt=rss&kind=photo&hl=en_US]</code>' .
+                      '</li>' .
+                      '</ol>',
+    'regexp' => '/picasaweb\.google\.com\/data\/feed\/base\/user\/([a-zA-Z0-9@_\-]+)\/albumid\/([a-z0-9]+)/i',
+    'ratio' => 800 / 600,
   );
 
   return $codecs;
@@ -191,7 +229,13 @@ function video_filter_metacafe($video) {
 }
 
 function video_filter_gametrailers($video) {
-  $video['source'] = 'http://www.gametrailers.com/remote_wrap.php?mid='.$video['codec']['matches'][1];
+  if (is_numeric($video['codec']['matches'][1])) {
+    $match = $video['codec']['matches'][1];
+  }
+  elseif (is_numeric($video['codec']['matches'][2])) {
+    $match = $video['codec']['matches'][2];
+  }
+  $video['source'] = 'http://www.gametrailers.com/remote_wrap.php?mid='.$match;
 
   return video_filter_flash($video, $params);
 }
@@ -267,4 +311,15 @@ function video_filter_slideshare($video) {
   $video['source'] = 'http://static.slideshare.net/swf/ssplayer2.swf?id=' . $video['codec']['matches'][1] . '&amp;doc=' . ($video['codec']['matches'][2]);
 
   return video_filter_flash($video);
+}
+
+function video_filter_picasa_slideshows($video) {
+  $video['source'] = 'http://picasaweb.google.com/s/c/bin/slideshow.swf';
+
+  $user_name = $video['codec']['matches'][1];
+  $set_id = $video['codec']['matches'][2];
+
+  $params['flashvars'] = "host=picasaweb.google.com&amp;&amp;feat=flashalbum&amp;RGB=0x000000&amp;feed=http%3A%2F%2Fpicasaweb.google.com%2Fdata%2Ffeed%2Fapi%2Fuser%2F" . $user_name . "%2Falbumid%2F" . $set_id . "%3Falt%3Drss%26kind%3Dphoto%26" . ($video['autoplay'] ? '' : '&amp;noautoplay=1');
+
+  return video_filter_flash($video, $params);
 }

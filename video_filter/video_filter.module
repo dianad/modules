@@ -1,5 +1,5 @@
 <?php
-// $Id: video_filter.module,v 1.12.2.9 2009/08/16 11:07:13 blackdog Exp $
+// $Id: video_filter.module,v 1.12.2.10 2009/10/22 19:40:44 blackdog Exp $
 
 module_load_include('inc', 'video_filter', 'video_filter.codecs');
 
@@ -250,4 +250,96 @@ function video_filter_theme($existing, $type, $theme, $path) {
       'arguments' => array('video' => NULL, 'params' => array()),
     ),
   );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function video_filter_menu() {
+  $items = array();
+
+  $items['video_filter/load'] = array(
+    'title' => t('Video Filter'),
+    'page callback' => 'video_filter_loader',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_wysiwyg_plugin().
+ */
+function video_filter_wysiwyg_plugin($editor, $version) {
+  switch ($editor) {
+    case 'tinymce':
+      if ($version > 3) {
+        drupal_add_css(drupal_get_path('module', 'video_filter') . '/wysiwyg/tinymce/video_filter.css');
+        return array(
+          'videofilter' => array(
+            'path' => drupal_get_path('module', 'video_filter') . '/wysiwyg/tinymce/editor_plugin.js',
+            'buttons' => array('videofilter' => t('Video Filter')),
+            'url' => 'http://drupal.org/project/video_filter',
+            'load' => TRUE,
+          ),
+        );
+      }
+      break;
+  }
+}
+
+/**
+ * Output tinymce popup html.
+ * 
+ * @todo Remove hard-coded TinyMCE integration.
+ */
+function video_filter_loader() {
+  $output  = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 //EN">'."\n";
+  $output .= "<html>\n";
+  $output .= "<head>\n";
+  $output .= '<title>{#videofilter_dlg.title}</title>' ."\n";
+  $path = base_path() . drupal_get_path('module', 'video_filter') . '/wysiwyg';
+  $tinymce_path = base_path() .'sites/all/libraries';
+  $tinymce_js = $tinymce_path .'/tinymce/jscripts/tiny_mce/tiny_mce_popup.js';
+  $output .= '<script type="text/javascript" src="'. $tinymce_js .'"></script>' . "\n";
+  $output .= '<script type="text/javascript" src="' . $path . '/tinymce/langs/en_dlg.js"></script>'."\n";
+  $output .= '<script type="text/javascript" src="' . $path . '/tinymce/jscripts/video_filter.js"></script>'."\n";
+  $output .= '<link href="' . $path . '/tinymce/video_filter.css" rel="stylesheet" type="text/css" />' . "\n";
+  $output .= "</head>\n\n";
+  $output .= '<body id="mceVideoPopup">'; 
+  $output .= '<form onsubmit="insertVideo();return false;" action="#">' . "\n";
+  $output .= '<h3 style="clear:both;">{#videofilter_dlg.title}</h3>' . "\n";
+  $output .= '<!-- Gets filled with the selected elements name -->' . "\n";
+  $output .= '<div style="margin-top: 10px; margin-bottom: 10px">' . "\n";
+  $output .= '<input id="file" name="file" type="text" value="" onfocus="this.select();" />' . "\n";
+  $output .= '</div>' . "\n";
+  $output .= '<div class="mceActionPanel">' . "\n";
+  $output .= '<div style="float: left">' . "\n";
+  $output .= '<input type="submit" id="insert" name="insert" value="Insert" />' . "\n";
+  $output .= '</div>' . "\n";
+  $output .= '<div style="float: right">' . "\n";
+  $output .= '<input type="button" id="cancel" name="cancel" value="Cancel" onclick="tinyMCEPopup.close();" />' . "\n";
+  $output .= '</div></div>' . "\n";
+  $output .= '</form>' . "\n";
+  $output .= '<div id="instructions" style="clear:both;"><h3>'. t('Instructions') . '</h3>' . "\n";
+  $output .= '<p>' . t('Insert a 3rd party video from one of the following providers.') . '</p>' . "\n";
+  $output .=  _video_filter_instructions();
+  $output .= '</div>' . "\n";
+  $output .= '</body>' . "\n";
+  $output .= "</html>\n";
+  print $output;
+}
+
+/**
+ * Parses Codec into instructions for tinymce popup
+ */
+function _video_filter_instructions() {
+  $codecs = module_invoke_all('codec_info');
+  $output = '<ul>';
+  foreach ($codecs AS $codec) {
+    $output .= '<li><strong>' . $codec['name'] . '</strong><br />' . $codec['sample_url'] . '</li>';
+  }
+  $output .= '</ul>';
+  return $output;
 }
