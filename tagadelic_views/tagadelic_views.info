@@ -6,9 +6,9 @@ dependencies[] = tagadelic
 package = Views
 core = 6.x
 
-; Information added by drupal.org packaging script on 2009-02-02
-version = "6.x-1.x-dev"
+; Information added by drupal.org packaging script on 2009-10-05
+version = "6.x-1.1"
 core = "6.x"
 project = "tagadelic_views"
-datestamp = "1233534453"
+datestamp = "1254750390"
 

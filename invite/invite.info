@@ -5,9 +5,9 @@ dependencies[] = token
 package = Invite
 core = 6.x
 
-; Information added by drupal.org packaging script on 2009-04-28
-version = "6.x-2.x-dev"
+; Information added by drupal.org packaging script on 2009-04-19
+version = "6.x-2.0-alpha1"
 core = "6.x"
 project = "invite"
-datestamp = "1240877597"
+datestamp = "1240176048"
 

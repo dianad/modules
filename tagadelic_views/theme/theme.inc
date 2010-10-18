@@ -1,5 +1,5 @@
 <?php
-// $Id: theme.inc,v 1.1.2.2 2009/02/01 14:37:07 indytechcook Exp $
+// $Id: theme.inc,v 1.1.2.3 2009/10/05 13:07:19 indytechcook Exp $
 /**
  * @file
  * Main views plugin, creates Tagadelic as an option under the Style options when a view is created.
@@ -48,7 +48,7 @@ function template_preprocess_views_view_tagadelic(&$vars) {
     $result = db_query_range('SELECT COUNT(*) AS count, d.tid, d.name, d.vid FROM {term_data} d INNER JOIN {term_node} n ON d.tid = n.tid WHERE n.nid IN '. $nid_restrictor . $vid_restrictor .' GROUP BY d.tid, d.name, d.vid ORDER BY count DESC', 0, $options['size']);
     $tags = tagadelic_build_weighted_tags($result, $options['steps']);
     $tags = tagadelic_sort_tags($tags);
-    if (empty($vars['output'])) {
+    if (!empty($vars['output'])) {
       $view->result= NULL;
     }
     $vars['output'] = theme('tagadelic_weighted', $tags);

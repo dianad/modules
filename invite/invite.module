@@ -1,5 +1,5 @@
 <?php
-// $Id: invite.module,v 1.25.2.6 2009/04/27 17:24:44 smk Exp $
+// $Id: invite.module,v 1.25.2.5 2009/04/19 20:51:04 sun Exp $
 
 /**
  * @file
@@ -408,43 +408,11 @@ function invite_validate($invite) {
 /**
  * Implementation of hook_user().
  */
-// function invite_user($op, &$edit, &$account, $category = NULL) {
-//   switch ($op) {
-//     case 'insert':
-//       $invite = invite_load_from_session();
-// 
-//       if (!$invite) {
-//         // Try to look up an invitation in case a user has been invited to join
-//         // the site, but did go straight to the site and signed up without
-//         // using the invite link.
-//         $code = db_result(db_query("SELECT reg_code FROM {invite} WHERE email = '%s'", $account->mail));
-//         if ($code) {
-//           $invite = invite_load($code);
-//         }
-//       }
-//       if ($invite) {
-//         _invite_accept($invite, $account);
-// 
-//         // Flag the inviting user, this triggers status notifications and
-//         // saves us some queries otherwise.
-//         if ($invite->inviter->uid) {
-//           user_save($invite->inviter, array('invite_sent' => TRUE));
-//         }
-// 
-//         unset($_SESSION[INVITE_SESSION]);
-//       }
-//       break;
-// 
-//     case 'delete':
-//       invite_delete($account->uid);
-//       break;
-//   }
-// }
-
 function invite_user($op, &$edit, &$account, $category = NULL) {
   switch ($op) {
     case 'insert':
       $invite = invite_load_from_session();
+
       if (!$invite) {
         // Try to look up an invitation in case a user has been invited to join
         // the site, but did go straight to the site and signed up without
@@ -461,29 +429,8 @@ function invite_user($op, &$edit, &$account, $category = NULL) {
         // saves us some queries otherwise.
         if ($invite->inviter->uid) {
           user_save($invite->inviter, array('invite_sent' => TRUE));
-
         }
-//PATCH: http://drupal.org/node/330233 Correct role escalation
- $roles = array('default');
 
-// Add roles of inviter.
-$inviter_uid = db_result(db_query("SELECT uid FROM {invite} WHERE invitee = %d", $account->uid));
-if ($inviter_uid && $inviter = user_load(array('uid' => $inviter_uid))) {
-$roles = array_merge($roles, array_intersect($inviter->roles, user_roles(0, 'send invitations')));
-}
-
-// Map to configured target roles.
-$targets = array();
-foreach ($roles as $role) {
-$role_no_space = str_replace(' ', '_', $role);
-$target = variable_get('invite_target_role_'. $role_no_space, DRUPAL_AUTHENTICATED_RID);
-if ($target != DRUPAL_AUTHENTICATED_RID) {
-$targets[$target] = $target;
-}
-}
-
-$edit['roles'] += $targets;
-// END PATCH
         unset($_SESSION[INVITE_SESSION]);
       }
       break;
@@ -493,10 +440,6 @@ $edit['roles'] += $targets;
       break;
   }
 }
-
-
-
-
 
 /**
  * Set an invitation's status to accepted.
@@ -1017,7 +960,7 @@ function _invite_get_emails($string) {
 
   $emails = array_unique(split("[,\n\r]", $string));
   foreach ($emails as $email) {
-    $email = preg_replace('/^.*<(.*)>$/', '${1}', trim($email));
+    $email = trim($email);
     if ($email) {
       if (preg_match($rx, $email, $match)) {
         $valid_emails[] = $match[1];
@@ -1106,12 +1049,8 @@ function invite_form_submit($form, &$form_state) {
 
     // Send e-mail.
     $params = array('invite' => $invite);
-
-	// PATCH http://drupal.org/node/340788
-	$messagedrupal_mail = drupal_mail('invite', 'invite', $email, $language, $params, $from, TRUE);
-	if (1 || $messagedrupal_mail['result']) {
-    // $message = drupal_mail('invite', 'invite', $email, $language, $params, $from, TRUE);
-    // if (1 || $message['result']) {
+    $message = drupal_mail('invite', 'invite', $email, $language, $params, $from, TRUE);
+    if (1 || $message['result']) {
       // Save invite.
       invite_save($invite);
 
